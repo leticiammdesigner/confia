@@ -10,6 +10,15 @@ export const DIFICULDADES = ['facil', 'media', 'dificil'];
 export const STATUS = ['needs_fact_check', 'needs_editorial_review', 'verified', 'published'];
 export const STATUS_JOGAVEIS = ['published', 'verified'];
 export const jogavel = q => STATUS_JOGAVEIS.includes(q.status);
+
+/**
+ * Versão de teste: as perguntas demonstrativas (escritas pela IA, ainda sem revisão editorial)
+ * podem entrar na partida rápida e na completa para dar variedade. Nunca entram no desafio diário
+ * e nunca contam como conteúdo verificado. Para o lançamento, mudar para false.
+ */
+export const INCLUIR_NAO_REVISADAS_NO_TESTE = true;
+export const naoRevisadaDeTeste = q => q.origem === 'demonstrativo' && q.status === 'needs_editorial_review';
+const temFonteHttps = q => Array.isArray(q.sources) && q.sources.length > 0 && q.sources.every(s => /^https:\/\//.test(s.url || ''));
 const LETRAS = ['A', 'B', 'C', 'D'];
 
 /** Lista os problemas de uma pergunta (vazia = ok). */
@@ -30,18 +39,20 @@ export function problemasDaPergunta(q) {
   if (!DIFICULDADES.includes(q.difficulty)) p.push('dificuldade inválida');
   if (!STATUS.includes(q.status)) p.push('status inválido');
   if (!q.realCategory || !q.apparentCategory) p.push('falta tema real ou tema sugerido');
-  if (jogavel(q) && !(Array.isArray(q.sources) && q.sources.length && q.sources.every(s => /^https:\/\//.test(s.url || '')))) p.push('jogável sem fonte https');
+  if ((jogavel(q) || naoRevisadaDeTeste(q)) && !temFonteHttps(q)) p.push('jogável sem fonte https');
   return p;
 }
 
-export const jogaveis = banco => banco.filter(q => jogavel(q) && problemasDaPergunta(q).length === 0);
+/** Perguntas que podem entrar em partida. `diario: true` aceita só conteúdo verificado ou publicado. */
+export const jogaveis = (banco, { diario = false } = {}) => banco.filter(q =>
+  (jogavel(q) || (!diario && INCLUIR_NAO_REVISADAS_NO_TESTE && naoRevisadaDeTeste(q))) && problemasDaPergunta(q).length === 0);
 
 /**
  * Sorteia n perguntas jogáveis, distintas, evitando as vistas recentemente quando possível.
- * @param {object[]} banco @param {number} n @param {string[]} recentes @param {() => number} rng
+ * @param {object[]} banco @param {number} n @param {string[]} recentes @param {() => number} rng @param {{diario?: boolean}} op
  */
-export function sortearPerguntas(banco, n, recentes, rng) {
-  const ok = jogaveis(banco);
+export function sortearPerguntas(banco, n, recentes, rng, { diario = false } = {}) {
+  const ok = jogaveis(banco, { diario });
   if (ok.length < n) throw new Error(`banco com ${ok.length} perguntas jogáveis; precisa de ${n}`);
   const vistas = new Set(recentes || []);
   const embaralhar = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };

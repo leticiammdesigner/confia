@@ -6,7 +6,7 @@ import { BANCO } from './dados/banco.js';
 import * as M from './motor/partida.js';
 import * as R from './motor/regras.js';
 import { MULTIPLICADORES, geradorLivre } from './motor/plinko.js';
-import { sortearPerguntas, jogaveis } from './motor/perguntas.js';
+import { sortearPerguntas, jogaveis, naoRevisadaDeTeste } from './motor/perguntas.js';
 import { textoCompartilhar } from './motor/compartilhar.js';
 import * as S from './persistencia.js';
 import { criarAdaptadorDeAnuncios } from './anuncios.js';
@@ -79,7 +79,7 @@ function guardarNoHistorico() {
 }
 
 function novaPartida(mode = 'rapida') {
-  const ids = sortearPerguntas(BANCO, M.RODADAS[mode], S.perguntasRecentes(), geradorLivre());
+  const ids = sortearPerguntas(BANCO, M.RODADAS[mode], S.perguntasRecentes(), geradorLivre(), { diario: mode === 'diario' });
   S.marcarRecentes(ids);
   if (partida && partida.phase !== 'fim') registrar('partida_abandonada', { gameId: partida.gameId, rodada: partida.roundIndex + 1 });
   partida = M.criarPartida({ mode, perguntas: ids });
@@ -335,7 +335,7 @@ function telaResultado() {
     ${listaAlternativas(q, 'resultado')}
     <p class="conta" aria-label="Saldo de ${r.saldoAntes} para ${r.saldoDepois}">${r.saldoAntes} <span aria-hidden="true">→</span> ${r.saldoDepois}
       <span class="delta ${r.delta > 0 ? 'mais' : r.delta < 0 ? 'menos' : ''}">(${sinal(r.delta)})</span></p>
-    <section class="painel explicacao"><p>${esc(q.explanation)}</p>
+    <section class="painel explicacao">${naoRevisadaDeTeste(q) ? '<p class="selo-teste">Pergunta de teste, ainda sem revisão editorial</p>' : ''}<p>${esc(q.explanation)}</p>
       <p class="fonte">Fonte: ${q.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titulo)}</a>`).join(' · ')}</p></section>
     <button class="btn btn-principal" data-acao="avancar">${ultima ? 'Ver resultado final' : 'Próxima rodada'}</button>`;
 }

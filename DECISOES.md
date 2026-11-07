@@ -13,7 +13,7 @@ Escopo desta etapa, como combinado: **Partida rápida de 4 rodadas completa, com
 ## Conteúdo
 - **Status (adendo v1.1):** jogam `published` e `verified` nesta versão de teste. Para o lançamento, deixar só `published` em `STATUS_JOGAVEIS`.
 - **Banco original:** o anexo recebido terminou no meio da Q021. Q001 a Q020 entram; Q021 fica como `needs_editorial_review`; Q022 a Q027 ainda não chegaram.
-- **Banco demonstrativo:** 23 perguntas com fonte consultada em 07/11/2026. A Britney saiu dele (vale a Q013 original). Na pergunta do polvo, "Lula" saiu das alternativas: lula também tem três corações.
+- **Banco demonstrativo:** 23 perguntas escritas pela IA, com fonte consultada em 07/11/2026. Status `needs_editorial_review` e `origem: demonstrativo`: não contam como verificadas. Entram só na versão de teste, nas partidas rápida e completa (`INCLUIR_NAO_REVISADAS_NO_TESTE` em `js/motor/perguntas.js`), com o selo "Pergunta de teste, ainda sem revisão editorial" na explicação. Nunca entram no desafio diário. Para o lançamento, mudar a constante para `false` ou revisar cada uma. A Britney saiu dele (vale a Q013 original). Na pergunta do polvo, "Lula" saiu das alternativas: lula também tem três corações.
 - **Sorteio:** evita repetir as perguntas das últimas partidas no mesmo navegador.
 
 ## Interface

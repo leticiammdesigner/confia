@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { BANCO } from '../js/dados/banco.js';
 import { PERGUNTAS_ORIGINAIS } from '../js/dados/perguntas-originais.js';
 import { PERGUNTAS_DEMONSTRATIVAS } from '../js/dados/perguntas.js';
-import { problemasDaPergunta, jogaveis, sortearPerguntas } from '../js/motor/perguntas.js';
+import { problemasDaPergunta, jogaveis, sortearPerguntas, naoRevisadaDeTeste, jogavel } from '../js/motor/perguntas.js';
 import { geradorComSemente } from '../js/motor/plinko.js';
 
 test('todas as perguntas passam na validação', () => {
@@ -16,6 +16,20 @@ test('ids únicos; 20 originais e 23 demonstrativas jogáveis; Q021 fora', () =>
   assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
   assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 23);
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
+});
+
+test('demonstrativas: separadas, não revisadas, nunca verificadas e fora do desafio diário', () => {
+  for (const q of PERGUNTAS_DEMONSTRATIVAS) {
+    assert.equal(q.origem, 'demonstrativo', q.id);
+    assert.equal(q.status, 'needs_editorial_review', q.id);
+    assert.ok(naoRevisadaDeTeste(q) && !jogavel(q), q.id);
+  }
+  assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
+  const diario = jogaveis(BANCO, { diario: true });
+  assert.equal(diario.length, 20);
+  assert.ok(diario.every(q => q.origem === 'idealizadora'));
+  const rng = geradorComSemente('diario');
+  for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => /^Q0(0\d|1\d|20)$/.test(id)));
 });
 
 test('Britney só aparece uma vez (versão original)', () => {

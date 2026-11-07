@@ -1,0 +1,184 @@
+/* Confia? · camada 3: cor-dupla lilás × coral, voz em letreiro (Bungee), objeto-símbolo: ficha de aposta e Plinko. */
+@font-face{font-family:'Bungee';font-weight:400;font-display:swap;src:url(../assets/fontes/bungee-latin-400-normal.woff2) format('woff2')}
+:root{
+  --lilas:#B7A1E6; --lilas-claro:#ECE5FB; --lilas-texto:#4B2F99;
+  --fonte-letreiro:'Bungee','Arial Black',Impact,sans-serif;
+}
+body{display:flex;flex-direction:column;align-items:center}
+.pular-conteudo{position:absolute;left:12px;top:-80px;z-index:10}
+.pular-conteudo:focus{top:12px}
+
+.topo,main,.rodape{width:100%;max-width:560px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topo{display:flex;justify-content:space-between;align-items:center;padding-block:14px 10px;border-bottom:var(--traco);margin-bottom:16px}
+main{flex:1;display:flex;flex-direction:column;gap:16px;padding-bottom:28px}
+.rodape{display:grid;gap:6px;padding-block:16px 28px;border-top:2px dashed var(--tinta);font-size:13px;color:var(--tinta-suave);text-align:center}
+.rodape-marca{font-family:var(--fonte-cartaz);color:var(--tinta)}
+.pref{display:inline-flex;justify-content:center;align-items:center;gap:8px;min-height:44px;font-weight:700;color:var(--tinta);cursor:pointer}
+.pref input{width:22px;height:22px;accent-color:var(--lilas-texto)}
+
+/* ---------------------------------------------------------------- home */
+.home{display:flex;flex-direction:column;gap:18px}
+.cartaz-confia{position:relative;background:var(--lilas) var(--grao);border:var(--traco);border-radius:18px;box-shadow:6px 6px 0 var(--coral);padding:22px 18px 20px;overflow:hidden}
+.selo-jogo{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.logo-confia{font-family:var(--fonte-letreiro);font-weight:400;font-size:clamp(52px,17vw,84px);line-height:.95;margin:6px 0 10px;color:var(--papel-claro);-webkit-text-stroke:3px var(--tinta);paint-order:stroke fill;text-shadow:5px 5px 0 var(--tinta)}
+.logo-confia span{color:var(--sol)}
+.premissa{font-size:17px;font-weight:700;max-width:30ch}
+.cartaz-confia .fichas-deco{position:absolute;right:-14px;bottom:-14px;display:flex;gap:0;opacity:.95}
+.chamada{font-family:var(--fonte-mao);font-size:26px;color:var(--lilas-texto);text-align:center}
+.acoes-home{display:grid;gap:12px}
+.acoes-home .btn{width:100%}
+.btn-modo{flex-direction:column;gap:2px;min-height:68px}
+.btn-modo small{font-family:var(--fonte-texto);font-weight:700;font-size:13px}
+.em-breve{font-size:13.5px;color:var(--tinta-suave);text-align:center}
+.anteriores{padding:14px 16px;display:grid;gap:8px}
+.anteriores h2{font-size:17px;margin:0}
+.anteriores ol{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.anteriores li{display:flex;justify-content:space-between;gap:10px;font-size:14px;border-top:1px dashed var(--papel-escuro);padding-top:6px}
+.anteriores li b{font-variant-numeric:tabular-nums}
+.confirma-nova{padding:14px 16px;display:grid;gap:10px;border-style:dashed}
+
+/* ---------------------------------------------------------------- placar da partida */
+.placar{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.rodadas{display:flex;align-items:center;gap:8px}
+.rodadas-rotulo{font-weight:700;font-size:14px}
+.casas{display:flex;gap:4px;list-style:none;margin:0;padding:0}
+.casas li{width:22px;height:22px;border:2.5px solid var(--tinta);border-radius:5px;background:var(--papel-claro);display:grid;place-items:center;font-size:12px;font-weight:700;line-height:1}
+.casas li.atual{background:var(--lilas);box-shadow:2px 2px 0 var(--tinta)}
+.casas li.acerto{background:var(--musgo);color:var(--papel-claro)}
+.casas li.erro{background:var(--coral-claro);color:var(--coral-texto)}
+.saldo{background:var(--tinta);color:var(--papel-claro);border-radius:12px;padding:6px 12px;text-align:right;box-shadow:3px 3px 0 var(--lilas);min-width:96px}
+.saldo small{display:block;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#E8DCC3}
+.saldo b{font-size:24px;line-height:1.1;font-variant-numeric:tabular-nums}
+
+.fase{font-family:var(--fonte-letreiro);font-size:13px;letter-spacing:.5px;color:var(--lilas-texto);margin-bottom:-8px}
+.titulo-fase{font-size:clamp(22px,6.4vw,28px);margin:0}
+.titulo-fase:focus{outline:none}
+
+/* ---------------------------------------------------------------- alternativas */
+.alternativas{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.alt{position:relative;display:flex;align-items:center;gap:10px;width:100%;min-height:68px;padding:10px 12px;border:var(--traco);border-radius:var(--raio);background:var(--papel-claro);text-align:left;font-weight:700;font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+.alt .letra{flex:none;width:34px;height:34px;border-radius:50%;border:2.5px solid var(--tinta);display:grid;place-items:center;font-family:var(--fonte-letreiro);font-size:16px;background:var(--lilas)}
+.alternativas.so-ver .alt{background:var(--papel-claro);border-style:dashed}
+.alternativas.so-ver .alt .letra{background:var(--papel)}
+button.alt{cursor:pointer;box-shadow:4px 4px 0 var(--tinta);transition:transform .08s,box-shadow .08s,background .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button.alt:hover{background:var(--lilas-claro)}
+button.alt:active{transform:translate(4px,4px);box-shadow:none}
+button.alt:disabled{cursor:default}
+.alt.certa{background:var(--musgo-claro);border-style:solid}
+.alt.certa .letra{background:var(--musgo);color:var(--papel-claro)}
+.alt.errada{background:var(--coral-claro)}
+.alt.errada .letra{background:var(--coral)}
+.alt .marca{position:absolute;right:8px;top:-12px;font-size:12px;font-weight:700;background:var(--tinta);color:var(--papel-claro);padding:2px 8px;border-radius:999px}
+.alt.certa .marca{background:var(--musgo-texto)}
+.alt.errada .marca{background:var(--coral-texto)}
+.aviso-ver{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--tinta-suave)}
+
+/* ---------------------------------------------------------------- aposta */
+.aposta{padding:16px;display:grid;gap:14px;box-shadow:5px 5px 0 var(--lilas)}
+.aposta h3{font-family:var(--fonte-letreiro);font-weight:400;font-size:20px}
+.modos{border:0;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.modos legend{font-weight:700;font-size:14px;margin-bottom:8px;padding:0}
+.modo{position:relative;display:grid;gap:2px;padding:10px 12px;border:var(--traco);border-radius:12px;background:var(--papel);cursor:pointer;min-height:68px}
+.modo input{position:absolute;opacity:0;width:1px;height:1px}
+.modo b{font-family:var(--fonte-letreiro);font-weight:400;font-size:16px}
+.modo span{font-size:13px}
+.modo:has(input:checked){background:var(--lilas);box-shadow:3px 3px 0 var(--tinta)}
+.modo:has(input:focus-visible){outline:3px solid var(--primario);outline-offset:3px}
+.modo:has(input:disabled){opacity:.55;cursor:not-allowed}
+.motivo{font-size:13px;color:var(--coral-texto);font-weight:700}
+.valor{display:grid;grid-template-columns:52px 1fr 52px;align-items:center;gap:10px}
+.passo{width:52px;height:52px;border:var(--traco);border-radius:50%;background:var(--papel-claro);font-size:26px;font-weight:700;line-height:1;cursor:pointer;touch-action:manipulation}
+.passo:disabled{opacity:.45;cursor:not-allowed}
+.valor output{text-align:center;font-weight:700;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.valor output small{display:block;font-size:13px;color:var(--tinta-suave);margin-top:4px}
+.faixa{width:100%;height:44px;accent-color:var(--lilas-texto);cursor:pointer;margin:0}
+.fichas{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ficha{width:60px;height:60px;border-radius:50%;border:var(--traco);display:grid;place-items:center;font-family:var(--fonte-letreiro);font-size:15px;cursor:pointer;position:relative;background:var(--ceu);box-shadow:2px 3px 0 var(--tinta);touch-action:manipulation}
+.ficha:before{content:'';position:absolute;inset:6px;border-radius:50%;border:2px dashed rgba(28,26,23,.55)}
+.ficha span{position:relative}
+.ficha.v25{background:var(--sol)}
+.ficha.v50{background:var(--chiclete)}
+.ficha.vmax{background:var(--coral)}
+.ficha[aria-pressed=true]{transform:translateY(-3px);box-shadow:2px 6px 0 var(--tinta);outline:3px solid var(--tinta);outline-offset:2px}
+.potencial{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.potencial div{border:2.5px solid var(--tinta);border-radius:10px;padding:8px 10px;background:var(--papel)}
+.potencial small{display:block;font-size:12px;font-weight:700}
+.potencial b{font-size:20px;font-variant-numeric:tabular-nums}
+.potencial .ganha b{color:var(--musgo-texto)}
+.potencial .perde b{color:var(--coral-texto)}
+.aposta .btn-principal{width:100%}
+
+/* ---------------------------------------------------------------- Plinko */
+.plinko{padding:14px;display:grid;gap:12px;background:var(--lilas-claro);box-shadow:5px 5px 0 var(--coral)}
+.plinko-info{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px}
+.tabuleiro{width:100%;max-width:360px;height:auto;justify-self:center;display:block;background:var(--papel-claro);border:var(--traco);border-radius:12px}
+.tabuleiro .pino{fill:var(--tinta)}
+.tabuleiro .casa rect{fill:var(--papel);stroke:var(--tinta);stroke-width:2}
+.tabuleiro .casa text{font-family:var(--fonte-letreiro);font-size:11px;fill:var(--tinta);text-anchor:middle}
+.tabuleiro .casa.m2 rect{fill:var(--coral)}
+.tabuleiro .casa.m15 rect{fill:var(--sol)}
+.tabuleiro .casa.m1 rect{fill:var(--lilas)}
+.tabuleiro .casa.m05 rect{fill:var(--ceu)}
+.tabuleiro .casa.final rect{stroke-width:4}
+.tabuleiro .bolinha{fill:var(--chiclete);stroke:var(--tinta);stroke-width:2.5}
+.plinko-resultado{text-align:center;display:grid;gap:4px}
+.plinko-resultado .mult{font-family:var(--fonte-letreiro);font-size:40px;line-height:1}
+.multiplicadores{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;font-size:12.5px;font-weight:700}
+.multiplicadores span{border:2px solid var(--tinta);border-radius:999px;padding:2px 8px;background:var(--papel-claro)}
+
+/* ---------------------------------------------------------------- pergunta e resultado */
+.risco{display:inline-flex;align-self:flex-start;gap:6px;align-items:center;font-size:13.5px;font-weight:700;border:2.5px solid var(--tinta);border-radius:999px;padding:4px 12px;background:var(--lilas-claro)}
+.enunciado{padding:18px 16px;background:var(--papel-claro) var(--grao);border:var(--traco);border-radius:var(--raio);box-shadow:5px 5px 0 var(--lilas);font-size:19px;font-weight:700;line-height:1.4;animation:revelar .45s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes revelar{from{transform:rotateX(70deg) translateY(-10px);opacity:0}}
+.veredito{display:flex;align-items:center;gap:12px;padding:12px 16px;border:var(--traco);border-radius:var(--raio);font-family:var(--fonte-letreiro);font-size:22px;line-height:1.1}
+.veredito .icone{flex:none;width:40px;height:40px;border-radius:50%;border:2.5px solid var(--tinta);display:grid;place-items:center;font-family:var(--fonte-texto);font-weight:700;font-size:22px;background:var(--papel-claro)}
+.veredito.acerto{background:var(--musgo-claro);color:var(--musgo-texto)}
+.veredito.erro{background:var(--coral-claro);color:var(--coral-texto)}
+.veredito small{display:block;font-family:var(--fonte-texto);font-size:14px;font-weight:700;color:var(--tinta)}
+.conta{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.conta .delta{font-size:24px}
+.conta .delta.mais{color:var(--musgo-texto)}
+.conta .delta.menos{color:var(--coral-texto)}
+.explicacao{padding:14px 16px;display:grid;gap:6px;font-size:15.5px}
+.explicacao .fonte{font-size:13px}
+
+/* ---------------------------------------------------------------- saldo zerado e fim */
+.zerado{padding:20px 16px;display:grid;gap:12px;text-align:center;background:var(--coral-claro)}
+.zerado h2{font-family:var(--fonte-letreiro);font-size:40px;margin:0;color:var(--coral-texto)}
+.zerado .btn{width:100%}
+.fim{display:grid;gap:14px}
+.carta{background:var(--papel-claro);border:var(--traco);border-radius:18px;box-shadow:6px 6px 0 var(--chiclete);overflow:hidden}
+.carta-topo{background:var(--lilas) var(--grao);border-bottom:var(--traco);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.carta-topo .logo-mini{font-family:var(--fonte-letreiro);font-size:24px;color:var(--papel-claro);-webkit-text-stroke:2px var(--tinta);paint-order:stroke fill}
+.carta-corpo{padding:16px;display:grid;gap:12px;text-align:center}
+.frase-final{font-family:var(--fonte-mao);font-size:26px;color:var(--lilas-texto);line-height:1.15}
+.saldo-final{font-weight:700;font-size:64px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:4px 4px 0 var(--lilas)}
+.saldo-final small{display:block;font-size:14px;text-shadow:none;color:var(--tinta-suave)}
+.linha-rodadas{display:flex;justify-content:center;gap:8px;font-size:22px}
+.estatisticas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+.estatisticas div{border:2.5px solid var(--tinta);border-radius:10px;padding:8px;background:var(--papel)}
+.estatisticas dt{font-size:12px;font-weight:700;color:var(--tinta-suave)}
+.estatisticas dd{margin:0;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.acoes-fim{display:grid;gap:10px}
+.acoes-fim .btn{width:100%}
+.status-copia{text-align:center;font-weight:700;font-size:14px;min-height:20px}
+.texto-compartilhar{width:100%;min-height:150px;border:2.5px solid var(--tinta);border-radius:10px;padding:10px;font:inherit;font-size:14px;background:#fff}
+
+dialog{border:var(--traco);border-radius:18px;background:var(--papel);color:var(--tinta);padding:0;max-width:min(520px,calc(100vw - 32px));box-shadow:6px 6px 0 var(--lilas)}
+dialog::backdrop{background:rgba(28,26,23,.6)}
+.como-jogar{padding:20px;display:grid;gap:14px}
+.como-jogar h2{margin:0;font-family:var(--fonte-letreiro);font-size:26px}
+.passos{margin:0;padding-left:22px;display:grid;gap:8px}
+.exemplo{border:2.5px dashed var(--tinta);border-radius:12px;padding:10px 12px;background:var(--lilas-claro)}
+.exemplo-rotulo{font-weight:700;font-size:12px;letter-spacing:1.4px;text-transform:uppercase}
+.nota{font-size:14px;color:var(--tinta-suave)}
+.aviso{padding:14px 16px}
+
+@media (min-width:640px){.alternativas{gap:12px}.alt{min-height:76px}}
+@media (max-width:360px){.alternativas{grid-template-columns:1fr}.alt{min-height:56px}}
+
+/* leitura: o enunciado é texto, não cartaz */
+.enunciado{font-family:var(--fonte-texto);letter-spacing:0;text-wrap:pretty}
+.premissa{padding-right:84px}
+.enunciado:focus-visible{outline:3px solid var(--primario);outline-offset:3px}
+.status-copia:empty{display:none}

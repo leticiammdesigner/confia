@@ -202,7 +202,17 @@ function placar() {
   }).join('');
   const rodada = partida.phase === 'fim' ? 'Fim de jogo' : `Rodada ${partida.roundIndex + 1} de ${n}`;
   return `<div class="placar"><div class="rodadas"><span class="rodadas-rotulo">${rodada}</span><ol class="casas" aria-label="Progresso">${casas}</ol></div>
-    <div class="saldo" aria-label="Saldo: ${pts(partida.balance)}"><small>Saldo</small><b>${partida.balance}</b></div></div>`;
+    <div class="saldo" aria-label="Saldo: ${pts(partida.balance)}"><small>Saldo</small><b>${partida.balance}</b></div></div>${etapas()}`;
+}
+
+/** Ordem da rodada sempre à vista: primeiro a aposta, depois a pergunta. */
+function etapas() {
+  const f = partida.phase;
+  if (!['aposta', 'plinko', 'pergunta', 'resultado'].includes(f)) return '';
+  const atual = f === 'aposta' || f === 'plinko' || mostrarResultadoPlinko ? 0 : f === 'pergunta' ? 1 : 2;
+  const nomes = ['Aposta', 'Pergunta', 'Resultado'];
+  return `<ol class="etapas" aria-label="Etapas da rodada">${nomes.map((n, i) =>
+    `<li class="${i < atual ? 'feita' : i === atual ? 'agora' : ''}"${i === atual ? ' aria-current="step"' : ''}><span aria-hidden="true">${i + 1}</span>${n}</li>`).join('')}</ol>`;
 }
 
 function listaAlternativas(q, modo) {
@@ -224,6 +234,7 @@ function telaAposta() {
   if (!plinkoOk && rascunho.modo === 'plinko') rascunho.modo = 'seco';
   return `<p class="fase">Rodada ${partida.roundIndex + 1} · primeiro, a aposta</p>
     <h2 class="titulo-fase" tabindex="-1" data-foco>Essas são as alternativas. A pergunta ainda é segredo.</h2>
+    <p class="explica-aposta">Olhe as respostas, imagine qual pode ser a pergunta e decida quanto você confia. A pergunta só aparece depois da aposta.</p>
     ${listaAlternativas(q, 'ver')}
     <p class="aviso-ver"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Ainda não dá para responder.</p>
     <section class="painel aposta" aria-labelledby="tituloAposta">
@@ -235,6 +246,7 @@ function telaAposta() {
       ${plinkoOk ? '' : `<p class="motivo" id="motivoPlinko">O Plinko precisa de pelo menos ${R.APOSTA_MINIMA * 2} pontos de saldo.</p>`}
       <div id="controleAposta"></div>
       <button class="btn btn-principal" data-acao="confirmar" id="botaoConfirmar">Confio!</button>
+      <p class="nota-aposta">Depois de confirmar, a aposta não muda. Pontos fictícios, sem dinheiro.</p>
     </section>`;
 }
 
@@ -255,6 +267,7 @@ function atualizarAposta(trocouModo = false) {
     <input class="faixa" type="range" id="faixaAposta" min="${l.min}" max="${l.max}" step="1" value="${v}" ${l.min === l.max ? 'disabled' : ''} aria-valuetext="${pts(v)}">
     <div class="fichas" role="group" aria-label="Atalhos de aposta">${R.atalhos(partida.balance, modo).map(a =>
       `<button type="button" class="ficha ${a.max ? 'vmax' : 'v' + a.valor}" data-acao="ficha" data-valor="${a.valor}" aria-pressed="${a.valor === v}" aria-label="${a.max ? `Máximo, ${a.valor}` : a.valor} pontos"><span>${a.max ? 'MÁX' : a.valor}</span></button>`).join('')}</div>
+    ${modo === 'plinko' ? `<div class="chances-plinko"><p><b>Chances de cada multiplicador</b></p><p class="multiplicadores">${MULTIPLICADORES.map(m => `<span>${rotuloMult(m.valor)} · ${m.peso}%</span>`).join('')}</p><p>O multiplicador é sorteado quando você confirma. A bolinha só mostra o resultado: ninguém controla o caminho.</p></div>` : ''}
     <div class="potencial" aria-live="polite">
       <div class="ganha"><small>Se acertar</small><b>+${faixa(p.ganhoMin, p.ganhoMax)}</b></div>
       <div class="perde"><small>Se errar</small><b>−${faixa(p.perdaMin, p.perdaMax)}</b></div>
@@ -283,7 +296,8 @@ function telaPlinko() {
     <section class="painel plinko" aria-label="Plinko">
       <div class="plinko-info"><span>Aposta: ${pts(partida.betAmount)}</span><span>Pior caso: −${R.pontosEmJogo(partida.betAmount, 2)}</span></div>
       ${svgTabuleiro(fim ? partida.plinko.casa : null)}
-      <p class="multiplicadores" aria-label="Chances">${MULTIPLICADORES.map(m => `<span>${rotuloMult(m.valor)} · ${m.peso}%</span>`).join('')}</p>
+      <p class="multiplicadores" aria-label="Chances de cada multiplicador">${MULTIPLICADORES.map(m => `<span>${rotuloMult(m.valor)} · ${m.peso}%</span>`).join('')}</p>
+      <p class="sorteio-feito">${fim ? 'Esse foi o multiplicador sorteado quando você confirmou a aposta.' : 'O multiplicador já foi sorteado quando você confirmou. A bolinha só está mostrando o resultado.'}</p>
       ${fim ? `<div class="plinko-resultado" role="status"><span class="mult">${rotuloMult(partida.multiplier)}</span><span>Agora vale <b>+${v}</b> se acertar e <b>−${v}</b> se errar.</span></div>
         <button class="btn btn-principal" data-acao="revelar">Agora vem a pergunta...</button>`
       : `<button class="btn" data-acao="pular">Pular animação</button>`}

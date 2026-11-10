@@ -18,6 +18,8 @@ const avisos = document.getElementById('avisos');
 const POR_ID = new Map(BANCO.map(q => [q.id, q]));
 const JOGAVEIS = new Set(jogaveis(BANCO).map(q => q.id));
 const anuncios = criarAdaptadorDeAnuncios(null); // sem provedor: opção de anúncio fica escondida
+/** Ajuste fino da aposta (botões − e +). Só interface: não muda limites nem economia. */
+const PASSO = 5;
 const NOME_MODO = { rapida: 'Partida rápida', completa: 'Partida completa', diario: 'Desafio do dia' };
 
 /** @type {import('./motor/partida.js').Partida|null} */
@@ -101,7 +103,7 @@ function aoClicar(e) {
   if (acao === 'inicio') { tela = 'home'; confirmandoNova = false; return render(); }
   if (acao === 'como-jogar') return document.getElementById('comoJogar').showModal();
   if (acao === 'ficha') { rascunho.valor = Number(alvo.dataset.valor); return atualizarAposta(); }
-  if (acao === 'menos' || acao === 'mais') { const l = limites(); rascunho.valor = Math.min(l.max, Math.max(l.min, valorAtual() + (acao === 'mais' ? 1 : -1))); return atualizarAposta(); }
+  if (acao === 'menos' || acao === 'mais') { const l = limites(); rascunho.valor = Math.min(l.max, Math.max(l.min, valorAtual() + (acao === 'mais' ? PASSO : -PASSO))); return atualizarAposta(); }
   if (acao === 'confirmar') return confirmar(alvo);
   if (acao === 'pular') { animacao?.pular(); return; }
   if (acao === 'revelar') { mostrarResultadoPlinko = false; return render(); }
@@ -115,7 +117,6 @@ function aoClicar(e) {
 
 function aoDigitar(e) {
   if (e.target.name === 'modo') { rascunho.modo = e.target.value; rascunho.valor = null; return atualizarAposta(true); }
-  if (e.target.id === 'faixaAposta') { rascunho.valor = Number(e.target.value); return atualizarAposta(); }
 }
 
 function limites() { return R.limitesAposta(partida.balance, rascunho.modo); }
@@ -146,9 +147,16 @@ function responder(letra) {
 }
 
 // ------------------------------------------------------------------ desenho
+/*
+ * Mobile-first: cada fase tem um título curto, o conteúdo da decisão e uma barra de ação
+ * grudada no rodapé da tela (sticky, dentro do fluxo: nunca cobre conteúdo).
+ * Regras completas ficam no "Como jogar"; aqui vai uma instrução por momento.
+ */
 function render(mudarFoco = true) {
   animacao = null;
-  if (tela === 'home' || !partida) app.innerHTML = telaHome();
+  const emJogo = !(tela === 'home' || !partida);
+  document.body.classList.toggle('em-jogo', emJogo);
+  if (!emJogo) app.innerHTML = telaHome();
   else {
     const f = partida.phase;
     app.innerHTML = placar() + (
@@ -160,59 +168,65 @@ function render(mudarFoco = true) {
     if (f === 'plinko') rodarPlinko();
     if (f === 'aposta') atualizarAposta(true);
   }
+  document.body.classList.toggle('com-barra', !!app.querySelector('.barra-acao'));
   if (mudarFoco) { const t = app.querySelector('[data-foco]'); (t || app).focus({ preventScroll: true }); window.scrollTo(0, 0); }
 }
 
+const barra = conteudo => `<div class="barra-acao"><div class="barra-dentro">${conteudo}</div></div>`;
+
 function telaHome() {
   const ativa = partida && partida.phase !== 'fim';
-  const hist = S.historico().slice(0, 5);
-  const fichas = `<svg class="fichas-deco" width="130" height="90" viewBox="0 0 130 90" aria-hidden="true"><g stroke="#1C1A17" stroke-width="3"><circle cx="40" cy="55" r="32" fill="#F6C419"/><circle cx="40" cy="55" r="22" fill="none" stroke-dasharray="6 5"/><circle cx="92" cy="40" r="32" fill="#E2512F"/><circle cx="92" cy="40" r="22" fill="none" stroke-dasharray="6 5"/></g></svg>`;
+  const hist = S.historico().slice(0, 3);
+  const fichas = `<svg class="fichas-deco" width="110" height="76" viewBox="0 0 130 90" aria-hidden="true"><g stroke="#1C1A17" stroke-width="3"><circle cx="40" cy="55" r="32" fill="#F6C419"/><circle cx="40" cy="55" r="22" fill="none" stroke-dasharray="6 5"/><circle cx="92" cy="40" r="32" fill="#E2512F"/><circle cx="92" cy="40" r="22" fill="none" stroke-dasharray="6 5"/></g></svg>`;
   return `<section class="home" aria-labelledby="tituloHome">
     <div class="cartaz-confia">
       <p class="selo-jogo">um jogo Matutar Games</p>
       <h1 class="logo-confia" id="tituloHome" tabindex="-1" data-foco>CONFIA<span>?</span></h1>
-      <p class="premissa">Você vê as alternativas, aposta e só depois descobre a pergunta.</p>
+      <p class="premissa">Veja as respostas, aposte e só então descubra a pergunta.</p>
       ${fichas}
     </div>
-    <p class="chamada">Você confia no que sabe?</p>
     ${ativa && confirmandoNova ? `<div class="painel confirma-nova" role="group" aria-label="Começar outra partida">
-        <p><b>Você tem uma partida em andamento.</b> Começar outra apaga essa.</p>
+        <p><b>Começar outra?</b> A partida atual será apagada.</p>
         <button class="btn btn-principal" data-acao="nova">Começar outra</button>
         <button class="btn" data-acao="cancelar-nova">Voltar</button></div>` : `
     <div class="acoes-home">
-      ${ativa ? `<button class="btn btn-principal btn-modo" data-acao="continuar">Continuar partida<small>Rodada ${partida.roundIndex + 1} de ${partida.perguntas.length} · saldo ${partida.balance}</small></button>
-        <button class="btn btn-modo" data-acao="nova">Nova partida rápida<small>4 rodadas · descarta a atual</small></button>`
-      : `<button class="btn btn-principal btn-modo" data-acao="nova">Partida rápida<small>4 rodadas · 2 a 3 minutos</small></button>`}
-      <button class="btn" data-acao="como-jogar">Como jogar</button>
+      ${ativa ? `<button class="btn btn-principal btn-modo" data-acao="continuar">Continuar<small>Rodada ${partida.roundIndex + 1} de ${partida.perguntas.length} · saldo ${partida.balance}</small></button>
+        <button class="btn btn-modo" data-acao="nova">Nova partida<small>apaga a atual</small></button>`
+      : `<button class="btn btn-principal btn-modo" data-acao="nova">Jogar<small>Partida rápida · 4 rodadas</small></button>`}
     </div>`}
-    <p class="em-breve">Partida completa e Desafio do dia chegam na próxima etapa.</p>
-    ${hist.length ? `<section class="painel anteriores" aria-labelledby="tituloAnteriores"><h2 id="tituloAnteriores">Suas últimas partidas</h2><ol>${hist.map(h =>
-      `<li><span>${esc(NOME_MODO[h.mode])} · ${new Date(h.em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span><span><b>${h.saldo}</b> pts · ${h.acertos}/${h.rodadas} acertos</span></li>`).join('')}</ol></section>` : ''}
+    <p class="chamada">Você confia no que sabe?</p>
+    ${hist.length ? `<section class="painel anteriores" aria-labelledby="tituloAnteriores"><h2 id="tituloAnteriores">Últimas partidas</h2><ol>${hist.map(h =>
+      `<li><span>${new Date(h.em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span><span><b>${h.saldo}</b> pts · ${h.acertos}/${h.rodadas} acertos</span></li>`).join('')}</ol></section>` : ''}
+    <p class="em-breve">Partida completa e Desafio do dia chegam em breve.</p>
   </section>`;
 }
 
+/** Cabeçalho da partida: rodada, saldo e etapa numa faixa só. */
 function placar() {
   const n = partida.perguntas.length;
   const casas = Array.from({ length: n }, (_, i) => {
     const r = partida.roundResults[i];
     const cls = r ? (r.correct ? 'acerto' : 'erro') : i === partida.roundIndex && partida.phase !== 'fim' ? 'atual' : '';
-    const sim = r ? (r.correct ? '✓' : '✗') : '';
-    const rot = r ? `Rodada ${i + 1}: ${r.correct ? 'acertou' : 'errou'}` : `Rodada ${i + 1}${cls ? ': agora' : ''}`;
-    return `<li class="${cls}" aria-label="${rot}">${sim}</li>`;
+    return `<li class="${cls}"></li>`;
   }).join('');
-  const rodada = partida.phase === 'fim' ? 'Fim de jogo' : `Rodada ${partida.roundIndex + 1} de ${n}`;
-  return `<div class="placar"><div class="rodadas"><span class="rodadas-rotulo">${rodada}</span><ol class="casas" aria-label="Progresso">${casas}</ol></div>
-    <div class="saldo" aria-label="Saldo: ${pts(partida.balance)}"><small>Saldo</small><b>${partida.balance}</b></div></div>${etapas()}`;
+  const fim = partida.phase === 'fim';
+  const resumo = partida.roundResults.map((r, i) => `rodada ${i + 1} ${r.correct ? 'certa' : 'errada'}`).join(', ');
+  return `<div class="placar">
+      <div class="rodadas"><span class="rodadas-rotulo" aria-hidden="true">${fim ? 'Fim' : `Rodada ${partida.roundIndex + 1}/${n}`}</span>
+        <ol class="casas" aria-label="${fim ? 'Fim de jogo' : `Rodada ${partida.roundIndex + 1} de ${n}`}${resumo ? '. ' + resumo : ''}">${casas}</ol></div>
+      ${etapas()}
+      <div class="saldo" aria-label="Saldo: ${pts(partida.balance)}"><small aria-hidden="true">saldo</small><b>${partida.balance}</b></div>
+    </div>`;
 }
 
-/** Ordem da rodada sempre à vista: primeiro a aposta, depois a pergunta. */
+/** Etapa atual da rodada: a aposta vem antes da pergunta. */
 function etapas() {
   const f = partida.phase;
-  if (!['aposta', 'plinko', 'pergunta', 'resultado'].includes(f)) return '';
+  if (!['aposta', 'plinko', 'pergunta', 'resultado'].includes(f)) return '<span class="etapas-vazio"></span>';
   const atual = f === 'aposta' || f === 'plinko' || mostrarResultadoPlinko ? 0 : f === 'pergunta' ? 1 : 2;
   const nomes = ['Aposta', 'Pergunta', 'Resultado'];
-  return `<ol class="etapas" aria-label="Etapas da rodada">${nomes.map((n, i) =>
-    `<li class="${i < atual ? 'feita' : i === atual ? 'agora' : ''}"${i === atual ? ' aria-current="step"' : ''}><span aria-hidden="true">${i + 1}</span>${n}</li>`).join('')}</ol>`;
+  return `<ol class="etapas" aria-label="Etapa">${nomes.map((n, i) =>
+    `<li class="${i < atual ? 'feita' : i === atual ? 'agora' : ''}"${i === atual ? ' aria-current="step"' : ''}>${n}</li>`).join('')}</ol>`;
 }
 
 function listaAlternativas(q, modo) {
@@ -222,86 +236,64 @@ function listaAlternativas(q, modo) {
     if (modo === 'responder') return `<li><button class="alt" data-acao="responder" data-letra="${a.id}"><span class="letra" aria-hidden="true">${a.id}</span><span><span class="sr-only">Alternativa ${a.id}: </span>${esc(a.text)}</span></button></li>`;
     const certa = a.id === q.correctAnswer, minha = a.id === res.answer;
     const cls = certa ? 'certa' : minha ? 'errada' : '';
-    const marca = certa ? (minha ? '✓ Sua resposta, certa' : '✓ Certa') : minha ? '✗ Sua resposta' : '';
+    const marca = certa ? (minha ? '✓ Sua resposta' : '✓ Certa') : minha ? '✗ Sua resposta' : '';
     return `<li><div class="alt ${cls}"><span class="letra" aria-hidden="true">${a.id}</span><span><span class="sr-only">${a.id}: </span>${esc(a.text)}</span>${marca ? `<span class="marca">${marca}</span>` : ''}</div></li>`;
   }).join('');
-  return `<ol class="alternativas ${modo === 'ver' ? 'so-ver' : ''}" aria-label="Alternativas">${itens}</ol>`;
+  return `<ol class="alternativas ${modo === 'ver' ? 'so-ver' : modo === 'responder' ? 'responder' : ''}" aria-label="Alternativas">${itens}</ol>`;
 }
+
+const ICONE_CADEADO = `<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>`;
 
 function telaAposta() {
   const q = POR_ID.get(M.perguntaAtual(partida));
   const plinkoOk = M.plinkoDisponivel(partida);
   if (!plinkoOk && rascunho.modo === 'plinko') rascunho.modo = 'seco';
-  return `<p class="fase">Rodada ${partida.roundIndex + 1} · primeiro, a aposta</p>
-    <h2 class="titulo-fase" tabindex="-1" data-foco>Essas são as alternativas. A pergunta ainda é segredo.</h2>
-    <p class="explica-aposta">Olhe as respostas, imagine qual pode ser a pergunta e decida quanto você confia. A pergunta só aparece depois da aposta.</p>
+  return `<h2 class="titulo-fase" tabindex="-1" data-foco>${ICONE_CADEADO} A pergunta vem depois.</h2>
     ${listaAlternativas(q, 'ver')}
-    <p class="aviso-ver"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>Ainda não dá para responder.</p>
     <section class="painel aposta" aria-labelledby="tituloAposta">
-      <h3 id="tituloAposta">Vai de quanto?</h3>
-      <fieldset class="modos"><legend>Como você quer arriscar?</legend>
-        <label class="modo"><input type="radio" name="modo" value="seco" ${rascunho.modo === 'seco' ? 'checked' : ''}><b>No seco</b><span>vale 1×</span></label>
-        <label class="modo"><input type="radio" name="modo" value="plinko" ${rascunho.modo === 'plinko' ? 'checked' : ''} ${plinkoOk ? '' : 'disabled aria-describedby="motivoPlinko"'}><b>Plinko</b><span>de 0,5× a 2×</span></label>
+      <h3 id="tituloAposta">Quanto você aposta?</h3>
+      <fieldset class="modos"><legend class="sr-only">Tipo de aposta</legend>
+        <label class="modo"><input type="radio" name="modo" value="seco" ${rascunho.modo === 'seco' ? 'checked' : ''}><b>No seco</b><span>1×</span></label>
+        <label class="modo"><input type="radio" name="modo" value="plinko" ${rascunho.modo === 'plinko' ? 'checked' : ''} ${plinkoOk ? '' : 'disabled aria-describedby="motivoPlinko"'}><b>Plinko</b><span>0,5× a 2×</span></label>
       </fieldset>
-      ${plinkoOk ? '' : `<p class="motivo" id="motivoPlinko">O Plinko precisa de pelo menos ${R.APOSTA_MINIMA * 2} pontos de saldo.</p>`}
+      ${plinkoOk ? '' : `<p class="motivo" id="motivoPlinko">Plinko libera com ${R.APOSTA_MINIMA * 2} pontos.</p>`}
       <div id="controleAposta"></div>
-      <button class="btn btn-principal" data-acao="confirmar" id="botaoConfirmar">Confio!</button>
-      <p class="nota-aposta">Depois de confirmar, a aposta não muda. Pontos fictícios, sem dinheiro.</p>
-    </section>`;
+    </section>
+    ${barra(`<button class="btn btn-principal" data-acao="confirmar" id="botaoConfirmar">Apostar</button>`)}`;
 }
 
-/** Atualiza só o controle de valor (sem redesenhar a tela, para não perder o foco do toque). */
-function atualizarAposta(trocouModo = false) {
+/** Fichas são o jeito principal de escolher; − e + ajustam de 5 em 5. Redesenha só o controle, sem perder o foco. */
+function atualizarAposta() {
   const caixa = document.getElementById('controleAposta');
   if (!caixa) return;
   const l = limites(), v = valorAtual(), modo = rascunho.modo;
   const p = R.potencial(v, modo, null, MULTIPLICADORES.map(m => m.valor));
   const faixa = (a, b) => (a === b ? `${a}` : `${a} a ${b}`);
-  const htmlControles = `
+  const focado = document.activeElement?.dataset?.acao, focadoValor = document.activeElement?.dataset?.valor;
+  caixa.innerHTML = `
+    <div class="fichas" role="group" aria-label="Valor da aposta">${R.atalhos(partida.balance, modo).map(a =>
+      `<button type="button" class="ficha ${a.max ? 'vmax' : 'v' + a.valor}" data-acao="ficha" data-valor="${a.valor}" aria-pressed="${a.valor === v}" aria-label="${a.max ? `Tudo, ${a.valor}` : a.valor} pontos"><span>${a.max ? 'MÁX' : a.valor}</span></button>`).join('')}</div>
     <div class="valor">
-      <button class="passo" type="button" data-acao="menos" aria-label="Diminuir aposta" ${v <= l.min ? 'disabled' : ''}>−</button>
-      <output id="valorAposta" for="faixaAposta" aria-live="polite">${v}<small>de ${l.min} a ${l.max} pontos</small></output>
-      <button class="passo" type="button" data-acao="mais" aria-label="Aumentar aposta" ${v >= l.max ? 'disabled' : ''}>+</button>
+      <button class="passo" type="button" data-acao="menos" aria-label="Menos ${PASSO}" ${v <= l.min ? 'disabled' : ''}>−</button>
+      <output id="valorAposta" aria-live="polite"><b>${v}</b> pontos</output>
+      <button class="passo" type="button" data-acao="mais" aria-label="Mais ${PASSO}" ${v >= l.max ? 'disabled' : ''}>+</button>
     </div>
-    <label class="sr-only" for="faixaAposta">Valor da aposta</label>
-    <input class="faixa" type="range" id="faixaAposta" min="${l.min}" max="${l.max}" step="1" value="${v}" ${l.min === l.max ? 'disabled' : ''} aria-valuetext="${pts(v)}">
-    <div class="fichas" role="group" aria-label="Atalhos de aposta">${R.atalhos(partida.balance, modo).map(a =>
-      `<button type="button" class="ficha ${a.max ? 'vmax' : 'v' + a.valor}" data-acao="ficha" data-valor="${a.valor}" aria-pressed="${a.valor === v}" aria-label="${a.max ? `Máximo, ${a.valor}` : a.valor} pontos"><span>${a.max ? 'MÁX' : a.valor}</span></button>`).join('')}</div>
-    ${modo === 'plinko' ? `<div class="chances-plinko"><p><b>Chances de cada multiplicador</b></p><p class="multiplicadores">${MULTIPLICADORES.map(m => `<span>${rotuloMult(m.valor)} · ${m.peso}%</span>`).join('')}</p><p>O multiplicador é sorteado quando você confirma. A bolinha só mostra o resultado: ninguém controla o caminho.</p></div>` : ''}
-    <div class="potencial" aria-live="polite">
-      <div class="ganha"><small>Se acertar</small><b>+${faixa(p.ganhoMin, p.ganhoMax)}</b></div>
-      <div class="perde"><small>Se errar</small><b>−${faixa(p.perdaMin, p.perdaMax)}</b></div>
-    </div>`;
-  const faixaEl = document.getElementById('faixaAposta');
-  if (faixaEl && !trocouModo && document.activeElement === faixaEl) {
-    // arrastando a faixa: atualiza só os textos
-    document.getElementById('valorAposta').innerHTML = `${v}<small>de ${l.min} a ${l.max} pontos</small>`;
-    faixaEl.setAttribute('aria-valuetext', pts(v));
-    caixa.querySelector('.potencial').innerHTML = `<div class="ganha"><small>Se acertar</small><b>+${faixa(p.ganhoMin, p.ganhoMax)}</b></div><div class="perde"><small>Se errar</small><b>−${faixa(p.perdaMin, p.perdaMax)}</b></div>`;
-    caixa.querySelectorAll('.ficha').forEach(f => f.setAttribute('aria-pressed', String(Number(f.dataset.valor) === v)));
-    caixa.querySelectorAll('.passo')[0].disabled = v <= l.min; caixa.querySelectorAll('.passo')[1].disabled = v >= l.max;
-  } else {
-    const focado = document.activeElement?.dataset?.acao, focadoValor = document.activeElement?.dataset?.valor;
-    caixa.innerHTML = htmlControles;
-    if (focado) caixa.querySelector(`[data-acao="${focado}"]${focadoValor ? `[data-valor="${focadoValor}"]` : ''}`)?.focus();
-  }
-  document.getElementById('botaoConfirmar').textContent = `Confio! Apostar ${v}${modo === 'plinko' ? ' no Plinko' : ''}`;
+    ${modo === 'plinko' ? `<p class="chances" aria-label="Chances do Plinko: ${MULTIPLICADORES.map(m => `${rotuloMult(m.valor)} ${m.peso}%`).join(', ')}">${MULTIPLICADORES.map(m => `<span class="m${String(m.valor).replace('.', '')}">${rotuloMult(m.valor)} <b>${m.peso}%</b></span>`).join('')}</p>` : ''}
+    <p class="potencial" aria-live="polite"><span class="ganha">Acertou <b>+${faixa(p.ganhoMin, p.ganhoMax)}</b></span><span class="perde">Errou <b>−${faixa(p.perdaMin, p.perdaMax)}</b></span></p>`;
+  if (focado) caixa.querySelector(`[data-acao="${focado}"]${focadoValor ? `[data-valor="${focadoValor}"]` : ''}`)?.focus();
+  document.getElementById('botaoConfirmar').textContent = modo === 'plinko' ? `Apostar ${v} no Plinko` : `Apostar ${pts(v)}`;
 }
 
 function telaPlinko() {
   const fim = partida.phase === 'pergunta';
   const v = R.pontosEmJogo(partida.betAmount, partida.multiplier);
-  return `<p class="fase">Plinko</p>
-    <h2 class="titulo-fase" tabindex="-1" data-foco>${fim ? `Caiu no ${rotuloMult(partida.multiplier)}!` : 'Lá vai a bolinha...'}</h2>
+  return `<h2 class="titulo-fase" tabindex="-1" data-foco>${fim ? `Deu ${rotuloMult(partida.multiplier)}!` : 'Lá vai a bolinha…'}</h2>
     <section class="painel plinko" aria-label="Plinko">
-      <div class="plinko-info"><span>Aposta: ${pts(partida.betAmount)}</span><span>Pior caso: −${R.pontosEmJogo(partida.betAmount, 2)}</span></div>
       ${svgTabuleiro(fim ? partida.plinko.casa : null)}
-      <p class="multiplicadores" aria-label="Chances de cada multiplicador">${MULTIPLICADORES.map(m => `<span>${rotuloMult(m.valor)} · ${m.peso}%</span>`).join('')}</p>
-      <p class="sorteio-feito">${fim ? 'Esse foi o multiplicador sorteado quando você confirmou a aposta.' : 'O multiplicador já foi sorteado quando você confirmou. A bolinha só está mostrando o resultado.'}</p>
-      ${fim ? `<div class="plinko-resultado" role="status"><span class="mult">${rotuloMult(partida.multiplier)}</span><span>Agora vale <b>+${v}</b> se acertar e <b>−${v}</b> se errar.</span></div>
-        <button class="btn btn-principal" data-acao="revelar">Agora vem a pergunta...</button>`
-      : `<button class="btn" data-acao="pular">Pular animação</button>`}
-    </section>`;
+      ${fim ? `<p class="plinko-resultado" role="status">Sua aposta de ${partida.betAmount} agora vale <b>${v}</b></p>`
+      : `<p class="plinko-nota">Já foi sorteado. A bolinha só mostra o resultado.</p>`}
+    </section>
+    ${barra(fim ? `<button class="btn btn-principal" data-acao="revelar">Ver pergunta</button>` : `<button class="btn" data-acao="pular">Pular animação</button>`)}`;
 }
 
 function rodarPlinko() {
@@ -310,16 +302,15 @@ function rodarPlinko() {
   animacao = animarPlinko(svg, partida.plinko, { reduzir: reduzirMovimento() });
   animacao.terminou.then(() => {
     if (!partida || partida.gameId !== gameId || partida.roundIndex !== rodada || partida.phase !== 'plinko') return;
-    if (aplicar(p => M.concluirPlinko(p))) { mostrarResultadoPlinko = true; render(); anunciar(`Caiu no ${rotuloMult(partida.multiplier)}.`); }
+    if (aplicar(p => M.concluirPlinko(p))) { mostrarResultadoPlinko = true; render(); anunciar(`Deu ${rotuloMult(partida.multiplier)}.`); }
   });
 }
 
 function telaPergunta() {
   const q = POR_ID.get(M.perguntaAtual(partida));
   const v = R.pontosEmJogo(partida.betAmount, partida.multiplier);
-  const risco = partida.betMode === 'plinko' ? `Apostou ${partida.betAmount} no Plinko ${rotuloMult(partida.multiplier)} · vale ${v}` : `Apostou ${partida.betAmount} no seco`;
-  return `<p class="fase">Agora vem a pergunta...</p>
-    <span class="risco">${risco}</span>
+  const plinko = partida.betMode === 'plinko' ? ` <span class="risco-mult">Plinko ${rotuloMult(partida.multiplier)}</span>` : '';
+  return `<p class="risco">Valendo <b>${v}</b>${plinko}</p>
     <h2 class="enunciado" tabindex="-1" data-foco>${esc(q.question)}</h2>
     ${listaAlternativas(q, 'responder')}`;
 }
@@ -327,37 +318,44 @@ function telaPergunta() {
 function telaResultado() {
   const q = POR_ID.get(M.perguntaAtual(partida));
   const r = partida.roundResults.at(-1);
-  const titulo = r.correct ? (r.betAmount >= partida.roundResults.at(-1).saldoAntes * 0.5 ? 'Essa você sabia mesmo!' : 'Acertou! Devia ter apostado mais, hein?') : (r.betAmount >= r.saldoAntes * 0.5 ? 'Ih, apostou alto!' : 'Errou. Ainda bem que foi pouco.');
   const ultima = M.ultimaRodada(partida);
-  return `<div class="veredito ${r.correct ? 'acerto' : 'erro'}" role="status"><span class="icone" aria-hidden="true">${r.correct ? '✓' : '✗'}</span>
-      <span><span tabindex="-1" data-foco>${r.correct ? 'Acertou!' : 'Errou!'}</span><small>${esc(titulo)}</small></span></div>
-    <p class="enunciado" style="animation:none;font-size:16px">${esc(q.question)}</p>
-    ${listaAlternativas(q, 'resultado')}
-    <p class="conta" aria-label="Saldo de ${r.saldoAntes} para ${r.saldoDepois}">${r.saldoAntes} <span aria-hidden="true">→</span> ${r.saldoDepois}
-      <span class="delta ${r.delta > 0 ? 'mais' : r.delta < 0 ? 'menos' : ''}">(${sinal(r.delta)})</span></p>
-    <section class="painel explicacao">${naoRevisadaDeTeste(q) ? '<p class="selo-teste">Pergunta de teste, ainda sem revisão editorial</p>' : ''}<p>${esc(q.explanation)}</p>
-      <p class="fonte">Fonte: ${q.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titulo)}</a>`).join(' · ')}</p></section>
-    <button class="btn btn-principal" data-acao="avancar">${ultima ? 'Ver resultado final' : 'Próxima rodada'}</button>`;
+  const certa = q.alternatives.find(a => a.id === q.correctAnswer);
+  const minha = q.alternatives.find(a => a.id === r.answer);
+  const alt = (a, cls, marca) => `<div class="alt ${cls}"><span class="letra" aria-hidden="true">${a.id}</span><span><span class="sr-only">${a.id}: </span>${esc(a.text)}</span><span class="marca">${marca}</span></div>`;
+  return `<div class="veredito ${r.correct ? 'acerto' : 'erro'}" role="status">
+      <span class="icone" aria-hidden="true">${r.correct ? '✓' : '✗'}</span>
+      <span class="veredito-texto"><span tabindex="-1" data-foco>${r.correct ? 'Acertou!' : 'Errou.'} <span class="delta">${sinal(r.delta)} ${Math.abs(r.delta) === 1 ? 'ponto' : 'pontos'}</span></span>
+        <small class="conta" aria-label="Saldo de ${r.saldoAntes} para ${r.saldoDepois}">Saldo ${r.saldoAntes} → <b>${r.saldoDepois}</b></small></span></div>
+    <section class="gabarito" aria-label="Resposta certa">
+      <p class="gabarito-pergunta">${esc(q.question)}</p>
+      ${alt(certa, 'certa', r.correct ? '✓ Sua resposta' : '✓ Certa')}
+      ${r.correct ? '' : alt(minha, 'errada', '✗ Sua resposta')}
+      <p class="gabarito-explica">${esc(q.explanation)}</p>
+      <p class="fonte">${naoRevisadaDeTeste(q) ? '<span class="selo-teste">Pergunta de teste, sem revisão editorial</span> ' : ''}Fonte: ${q.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titulo)}</a>`).join(' · ')}</p>
+    </section>
+    ${barra(`<button class="btn btn-principal" data-acao="avancar">${ultima ? 'Ver resultado' : 'Próxima rodada'}</button>`)}`;
 }
 
 function telaZerado() {
   const anuncioOk = anuncios.estado() === 'disponivel' && !partida.adRecoveryUsed;
+  const faltam = partida.perguntas.length - partida.roundIndex - 1;
   return `<section class="painel zerado" aria-labelledby="tituloZerado">
     <h2 id="tituloZerado" tabindex="-1" data-foco>Zerou!</h2>
-    <p>Acontece com quem confia. Ainda faltam ${partida.perguntas.length - partida.roundIndex - 1} ${partida.perguntas.length - partida.roundIndex - 1 === 1 ? 'pergunta' : 'perguntas'}.</p>
-    <button class="btn btn-principal" data-acao="recuperar">Pegar ${R.RECUPERACAO_GRATUITA} pontos e continuar</button>
+    <p>${faltam === 1 ? 'Falta 1 pergunta.' : `Faltam ${faltam} perguntas.`} Pegue ${R.RECUPERACAO_GRATUITA} pontos e continue.</p>
+    <button class="btn btn-principal" data-acao="recuperar">Pegar ${R.RECUPERACAO_GRATUITA} pontos</button>
     ${anuncioOk ? '<button class="btn" data-acao="anuncio">Ver um anúncio e ganhar mais 20</button>' : ''}
-    <button class="btn" data-acao="encerrar">Encerrar e ver o resultado</button>
+    <button class="btn" data-acao="encerrar">Encerrar partida</button>
   </section>`;
 }
 
+/** Frase do fim: comemora ou consola, sem culpar quem jogou. */
 function fraseFinal(r) {
-  if (r.acertos === r.rodadasJogadas && r.rodadasJogadas === r.totalRodadas) return r.saldoFinal >= 200 ? 'Gabaritou e apostou com coragem!' : 'Acertou tudo! Devia ter apostado mais, hein?';
-  if (r.saldoFinal >= 200) return 'Que confiança! O saldo mais que dobrou.';
-  if (r.saldoFinal > 100) return 'Saiu no lucro. Confiança bem calibrada.';
-  if (r.saldoFinal === 100) return 'Empatou com a banca. Nem ganhou, nem perdeu.';
-  if (r.saldoFinal === 0) return 'Zerou, mas descobriu um monte de coisa.';
-  return r.acertos >= r.rodadasJogadas / 2 ? 'Sabia bastante. Faltou acertar a aposta.' : 'Hoje a confiança não colaborou. Bora de novo?';
+  if (r.acertos === r.rodadasJogadas && r.rodadasJogadas === r.totalRodadas) return r.saldoFinal >= 200 ? 'Gabaritou com confiança!' : 'Gabaritou!';
+  if (r.saldoFinal >= 200) return 'O saldo mais que dobrou!';
+  if (r.saldoFinal > 100) return 'Saiu no lucro!';
+  if (r.saldoFinal === 100) return 'Empatou com a banca.';
+  if (r.saldoFinal === 0) return 'Zerou, mas aprendeu um monte.';
+  return r.acertos >= r.rodadasJogadas / 2 ? 'Acertou bastante. O saldo fica para a próxima.' : 'Hoje não foi. Bora de novo?';
 }
 
 function telaFim() {
@@ -368,22 +366,22 @@ function telaFim() {
       <div class="carta-topo"><span class="logo-mini">CONFIA?</span><span class="marca-hub">MATUTAR <span>GAMES</span></span></div>
       <div class="carta-corpo">
         <h2 class="frase-final" id="tituloFim" tabindex="-1" data-foco>${esc(fraseFinal(r))}</h2>
-        <p class="saldo-final">${r.saldoFinal}<small>pontos de saldo final</small></p>
-        <p><b>${r.acertos} de ${r.rodadasJogadas}</b> acertos${r.encerradaAntes ? ` (encerrou na rodada ${r.rodadasJogadas} de ${r.totalRodadas})` : ''}</p>
+        <p class="saldo-final">${r.saldoFinal}<small>pontos</small></p>
+        <p><b>${r.acertos} de ${r.rodadasJogadas}</b> acertos${r.encerradaAntes ? ` · parou na rodada ${r.rodadasJogadas}` : ''}</p>
         <p class="linha-rodadas" aria-label="${partida.roundResults.map((x, i) => `rodada ${i + 1} ${x.correct ? 'certa' : 'errada'}`).join(', ')}">${linha}</p>
         <dl class="estatisticas">
           <div><dt>Maior ganho</dt><dd>+${r.maiorGanho}</dd></div>
           <div><dt>Maior perda</dt><dd>−${r.maiorPerda}</dd></div>
-          <div><dt>Usou o Plinko</dt><dd>${r.usosPlinko}×</dd></div>
+          <div><dt>Plinko</dt><dd>${r.usosPlinko}×</dd></div>
           <div><dt>Recuperações</dt><dd>${r.recuperacoes}</dd></div>
         </dl>
       </div>
     </article>
     <div class="acoes-fim">
-      <button class="btn btn-principal" data-acao="compartilhar">Compartilhar resultado</button>
+      <button class="btn btn-principal" data-acao="compartilhar">Compartilhar</button>
       <p class="status-copia" id="statusCopia" role="status"></p>
       <button class="btn" data-acao="nova">Jogar de novo</button>
-      <button class="btn" data-acao="inicio">Voltar ao início</button>
+      <button class="btn-link" data-acao="inicio">Voltar ao início</button>
     </div>
   </section>`;
 }
@@ -404,9 +402,9 @@ async function compartilhar() {
 }
 async function copiar() {
   const t = texto(), st = document.getElementById('statusCopia');
-  try { await navigator.clipboard.writeText(t); st.textContent = 'Resultado copiado. Sem spoiler das respostas.'; }
+  try { await navigator.clipboard.writeText(t); st.textContent = 'Copiado! Sem spoiler das respostas.'; }
   catch {
-    st.textContent = 'Não deu para copiar sozinho. Selecione o texto abaixo e copie.';
+    st.textContent = 'Não deu para copiar. Selecione o texto abaixo.';
     if (!document.getElementById('textoCompartilhar')) st.insertAdjacentHTML('afterend', `<label class="sr-only" for="textoCompartilhar">Texto para compartilhar</label><textarea class="texto-compartilhar" id="textoCompartilhar" readonly>${esc(t)}</textarea>`);
     const ta = document.getElementById('textoCompartilhar'); ta.focus(); ta.select();
   }

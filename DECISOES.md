@@ -24,3 +24,11 @@ Escopo desta etapa, como combinado: **Partida rápida de 4 rodadas completa, com
 
 ## Balanceamento a observar nos testes
 Quem aposta sempre o mínimo termina perto de 100 e sem emoção; quem aposta tudo zera rápido. A tabela do Plinko tem média 1×. Nada disso foi ajustado para favorecer recuperação ou anúncio.
+
+## Revisão de UX mobile (10/11/2026)
+
+- **Plinko sem viés:** em 200 mil jogadas simuladas os multiplicadores bateram com as chances configuradas (qui² 4,44, abaixo do limite de 7,81 a 5%), nenhuma casa mostrada ficou diferente do multiplicador sorteado e 50,05% dos quiques foram para a direita. A sensação de "sempre para a direita" vinha da animação: ziguezague curto e sempre igual. Script: `node` com `jogarPlinko` e `geradorLivre`, mesmo cálculo do motor.
+- **Animação nova, mesmo resultado:** a bolinha segue o caminho E/D decidido pelo motor. Altura dos quiques, ritmo, pequenos desvios e um toque extra ocasional são aleatórios só no desenho. Pinos acendem quando a bolinha bate, a casa afunda na chegada e o rastro fica marcado no tabuleiro. "Deu X×!" só aparece depois que a bolinha para.
+- **Aposta:** as fichas são o jeito principal de escolher. − e + ajustam de 5 em 5 (antes de 1 em 1). A faixa deslizante saiu. Limites, aposta sugerida e economia não mudaram.
+- **Ação principal** fica numa barra grudada no rodapé da tela (sticky, dentro do fluxo), então não cobre conteúdo e respeita a área segura.
+- **Textos:** uma instrução por momento. A regra completa do Plinko e o aviso de pontos fictícios ficam no Como jogar e no rodapé da página inicial. "Reduzir animações" foi para o Como jogar.

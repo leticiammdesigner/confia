@@ -13,7 +13,7 @@
 <link rel="preload" href="assets/fontes/bungee-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fontes/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/matutar-base.css?v=1">
-<link rel="stylesheet" href="css/confia.css?v=1">
+<link rel="stylesheet" href="css/confia.css?v=2">
 </head>
 <body>
 <a class="pular-conteudo btn" href="#app">Pular para o jogo</a>
@@ -26,28 +26,32 @@
 </main>
 <p id="avisos" class="sr-only" aria-live="polite" aria-atomic="true"></p>
 <footer class="rodape">
-  <label class="pref"><input type="checkbox" id="menosMovimento"> Reduzir animações</label>
   <p><span class="rodape-marca">MATUTAR GAMES</span> · Ideias que dão jogo.</p>
-  <p>Pontos fictícios, sem valor em dinheiro. Nada para comprar.</p>
+  <p>Pontos fictícios, sem valor em dinheiro.</p>
 </footer>
 <dialog id="comoJogar" aria-labelledby="comoJogarTitulo">
   <form method="dialog" class="como-jogar">
     <h2 id="comoJogarTitulo">Como jogar</h2>
     <ol class="passos">
-      <li><b>Veja as alternativas.</b> Quatro respostas aparecem, mas a pergunta fica escondida.</li>
-      <li><b>Escolha quanto apostar.</b> Você começa com 100 pontos. A aposta mínima é 10.</li>
-      <li><b>Arrisque no seco ou no Plinko.</b> No seco vale 1×. No Plinko a bolinha sorteia de 0,5× a 2×, para ganhar ou para perder.</li>
-      <li><b>Descubra a pergunta.</b> Pode ser o que você imaginou. Ou não.</li>
-      <li><b>Responda e veja o resultado.</b> Acertou, ganha. Errou, perde.</li>
+      <li><b>Veja as respostas.</b> A pergunta fica escondida.</li>
+      <li><b>Aposte.</b> Você começa com 100 pontos. Mínimo de 10.</li>
+      <li><b>Descubra a pergunta e responda.</b> Acertou, ganha o que apostou. Errou, perde.</li>
     </ol>
     <div class="exemplo" aria-label="Exemplo">
       <p class="exemplo-rotulo">Por exemplo</p>
-      <p>Você vê <b>Leão, Águia, Urso e Lobo</b>. Parece pergunta de bicho, né? Mas pode ser sobre escudo de time, bandeira ou filme. Quanto você aposta?</p>
+      <p>Você vê <b>Leão, Águia, Urso e Lobo</b>. Parece bicho, né? Mas a pergunta pode ser sobre time, bandeira ou filme.</p>
     </div>
-    <p class="nota">Zerou na partida? Pegue 10 pontos de graça e continue.</p>
+    <div class="regra-plinko">
+      <p><b>Plinko</b> multiplica a aposta por 0,5×, 1×, 1,5× ou 2×, para ganhar e para perder. O multiplicador é sorteado quando você aposta. A bolinha só mostra o resultado, ninguém controla o caminho.</p>
+      <p class="multiplicadores" aria-label="Chances">
+        <span>0,5× · 30%</span><span>1× · 45%</span><span>1,5× · 20%</span><span>2× · 5%</span>
+      </p>
+    </div>
+    <p class="nota">Zerou? Pegue 10 pontos e continue. Os pontos são fictícios, sem valor em dinheiro.</p>
+    <label class="pref"><input type="checkbox" id="menosMovimento"> Reduzir animações</label>
     <button class="btn btn-principal" value="ok">Bora jogar</button>
   </form>
 </dialog>
-<script type="module" src="js/app.js?v=1"></script>
+<script type="module" src="js/app.js?v=2"></script>
 </body>
 </html>

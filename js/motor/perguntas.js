@@ -12,11 +12,11 @@ export const STATUS_JOGAVEIS = ['published', 'verified'];
 export const jogavel = q => STATUS_JOGAVEIS.includes(q.status);
 
 /**
- * Versão de teste: as perguntas demonstrativas (escritas pela IA, ainda sem revisão editorial)
- * podem entrar na partida rápida e na completa para dar variedade. Nunca entram no desafio diário
- * e nunca contam como conteúdo verificado. Para o lançamento, mudar para false.
+ * Perguntas demonstrativas (escritas pela IA, ainda sem revisão editorial).
+ * Lançamento: desligado. Só as perguntas revisadas entram em partida.
+ * Ligar só numa versão de teste, nunca em produção. Elas nunca entram no desafio diário.
  */
-export const INCLUIR_NAO_REVISADAS_NO_TESTE = true;
+export const INCLUIR_NAO_REVISADAS_NO_TESTE = false;
 export const naoRevisadaDeTeste = q => q.origem === 'demonstrativo' && q.status === 'needs_editorial_review';
 const temFonteHttps = q => Array.isArray(q.sources) && q.sources.length > 0 && q.sources.every(s => /^https:\/\//.test(s.url || ''));
 const LETRAS = ['A', 'B', 'C', 'D'];

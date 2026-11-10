@@ -2,6 +2,7 @@
  * Confia? · controlador da interface. Toda mudança de jogo passa pelo motor (motor/partida.js);
  * aqui só se desenha a fase atual, se salva o estado e se encaminham os toques.
  */
+import { URL_HUB } from './config.js';
 import { BANCO } from './dados/banco.js';
 import * as M from './motor/partida.js';
 import * as R from './motor/regras.js';
@@ -51,7 +52,9 @@ function iniciar() {
   const dialogo = document.getElementById('comoJogar');
   document.getElementById('abrirComoJogar').addEventListener('click', () => { dialogo.showModal(); registrar('como_jogar_aberto'); });
   app.addEventListener('click', aoClicar);
-  document.querySelector('.topo .marca-hub').addEventListener('click', e => { e.preventDefault(); tela = 'home'; confirmandoNova = false; render(); });
+  const marca = document.querySelector('.topo .marca-hub');
+  if (URL_HUB) { marca.href = URL_HUB; marca.setAttribute('aria-label', 'Matutar Games, todos os jogos'); }
+  else marca.addEventListener('click', e => { e.preventDefault(); tela = 'home'; confirmandoNova = false; render(); });
   app.addEventListener('input', aoDigitar);
   app.addEventListener('change', aoDigitar);
   render(false);

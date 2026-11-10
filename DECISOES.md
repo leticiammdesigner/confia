@@ -32,3 +32,20 @@ Quem aposta sempre o mínimo termina perto de 100 e sem emoção; quem aposta tu
 - **Aposta:** as fichas são o jeito principal de escolher. − e + ajustam de 5 em 5 (antes de 1 em 1). A faixa deslizante saiu. Limites, aposta sugerida e economia não mudaram.
 - **Ação principal** fica numa barra grudada no rodapé da tela (sticky, dentro do fluxo), então não cobre conteúdo e respeita a área segura.
 - **Textos:** uma instrução por momento. A regra completa do Plinko e o aviso de pontos fictícios ficam no Como jogar e no rodapé da página inicial. "Reduzir animações" foi para o Como jogar.
+
+## Lançamento da Matutar Games (10/11/2026)
+
+- O Confia? entra no lançamento só com a Partida Rápida, conteúdo das 20 perguntas originais revisadas. As demonstrativas saem do jogo (continuam no código, marcadas como não revisadas).
+- O teste de equilíbrio entre tipos editoriais deixou de travar o lançamento: o banco revisado é majoritariamente de perguntas diretas. Equilibrar é meta da ampliação do banco.
+- Ligação com a home preparada por `js/config.js` (`URL_HUB`), sem mudar endereço nenhum.
+
+## Desafio do Dia: regras aprovadas para implementação futura (10/11/2026)
+
+1. O dia vira à meia-noite no horário de Brasília.
+2. Plinko: mesmo multiplicador para todos em cada rodada do mesmo desafio (`plinkoDoDesafio(id, versão, rodada)`).
+3. Uma tentativa oficial por navegador, sem login. Limitação conhecida: limpar o navegador ou trocar de aparelho permite jogar de novo.
+4. Quem sai no meio retoma no mesmo dia, com as rodadas concluídas preservadas.
+5. Comparação coletiva fica para a atualização com Supabase.
+6. Sequência de dias jogados fica para depois.
+7. Perguntas sorteadas de forma reproduzível só entre as revisadas; o calendário passa por aprovação editorial antes de publicar.
+- Já garantido no motor: 4 rodadas iguais para todos, sem recuperação de saldo no diário, quem zera segue respondendo sem apostar.

@@ -20,7 +20,9 @@ main{flex:1;display:flex;flex-direction:column;gap:14px;padding-top:14px;padding
 .rodape-marca{font-family:var(--fonte-cartaz);color:var(--tinta)}
 /* em jogo a página é só o jogo: rodapé some e a barra de ação fecha a tela */
 body.em-jogo .rodape{display:none}
-body.em-jogo main{gap:12px;padding-top:10px;padding-bottom:0}
+body.em-jogo main{gap:12px;padding-top:10px;padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+/* com barra de ação, ela mesma fecha a tela (e cuida da área segura); sem barra, não sobra faixa vazia */
+body.em-jogo.com-barra main{padding-bottom:0}
 .pref{display:inline-flex;align-items:center;gap:10px;min-height:44px;font-weight:700;color:var(--tinta);cursor:pointer}
 .pref input{width:22px;height:22px;accent-color:var(--lilas-texto)}
 
@@ -78,6 +80,10 @@ body.em-jogo main{gap:12px;padding-top:10px;padding-bottom:0}
 .alt .letra{flex:none;width:28px;height:28px;border-radius:50%;border:2.5px solid var(--tinta);display:grid;place-items:center;font-family:var(--fonte-letreiro);font-size:13px;background:var(--lilas)}
 .alternativas.so-ver .alt{border-style:dashed;min-height:48px}
 .alternativas.so-ver .alt .letra{background:var(--papel)}
+/* na pergunta, a ação é tocar numa resposta: coluna única, alvos grandes, sem barra embaixo */
+.alternativas.responder{grid-template-columns:1fr;gap:10px}
+.alternativas.responder .alt{min-height:58px;font-size:16.5px;padding:10px 12px}
+.alternativas.responder .alt .letra{width:32px;height:32px;font-size:14px}
 button.alt{cursor:pointer;min-height:60px;box-shadow:3px 3px 0 var(--tinta);transition:transform .08s,box-shadow .08s,background .12s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button.alt:hover{background:var(--lilas-claro)}
 button.alt:active{transform:translate(3px,3px);box-shadow:none}
@@ -175,10 +181,16 @@ button.alt:disabled{cursor:default}
 .veredito.acerto{background:var(--musgo-claro);color:var(--musgo-texto)}
 .veredito.erro{background:var(--coral-claro);color:var(--coral-texto)}
 .veredito .conta{font-family:var(--fonte-texto);font-size:14.5px;font-weight:700;color:var(--tinta);font-variant-numeric:tabular-nums}
-.enunciado-resultado{animation:none;font-size:15.5px;padding:10px 12px;box-shadow:none;background:transparent;border-width:0 0 0 4px;border-radius:0}
-.explicacao{display:grid;gap:6px;font-size:15px;padding:0 2px}
-.explicacao .fonte{font-size:13px;color:var(--tinta-suave)}
-.selo-teste{justify-self:start;font-size:11.5px;font-weight:700;border:2px dashed var(--tinta);border-radius:999px;padding:1px 9px;background:var(--papel)}
+/* resultado: a resposta certa e a explicação vêm na frente; a pergunta, já lida, fica discreta */
+.gabarito{display:grid;gap:10px}
+.gabarito-pergunta{font-size:14px;color:var(--tinta-suave);line-height:1.35}
+.gabarito .alt{min-height:52px;font-size:17px}
+.gabarito .alt.errada{min-height:44px;font-size:14.5px;padding-block:6px;opacity:.9}
+.gabarito .alt.errada .letra{width:24px;height:24px;font-size:12px}
+.gabarito .alt.certa{box-shadow:3px 3px 0 var(--musgo-texto)}
+.gabarito-explica{font-size:16px;line-height:1.45}
+.gabarito .fonte{font-size:13px;color:var(--tinta-suave);line-height:1.6}
+.selo-teste{display:inline-block;font-size:11.5px;font-weight:700;border:2px dashed var(--tinta);border-radius:999px;padding:0 9px;background:var(--papel);color:var(--tinta)}
 
 /* ---------------------------------------------------------------- saldo zerado e fim */
 .zerado{padding:20px 16px;display:grid;gap:12px;text-align:center;background:var(--coral-claro)}

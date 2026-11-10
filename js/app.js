@@ -168,6 +168,7 @@ function render(mudarFoco = true) {
     if (f === 'plinko') rodarPlinko();
     if (f === 'aposta') atualizarAposta(true);
   }
+  document.body.classList.toggle('com-barra', !!app.querySelector('.barra-acao'));
   if (mudarFoco) { const t = app.querySelector('[data-foco]'); (t || app).focus({ preventScroll: true }); window.scrollTo(0, 0); }
 }
 
@@ -238,7 +239,7 @@ function listaAlternativas(q, modo) {
     const marca = certa ? (minha ? '✓ Sua resposta' : '✓ Certa') : minha ? '✗ Sua resposta' : '';
     return `<li><div class="alt ${cls}"><span class="letra" aria-hidden="true">${a.id}</span><span><span class="sr-only">${a.id}: </span>${esc(a.text)}</span>${marca ? `<span class="marca">${marca}</span>` : ''}</div></li>`;
   }).join('');
-  return `<ol class="alternativas ${modo === 'ver' ? 'so-ver' : ''}" aria-label="Alternativas">${itens}</ol>`;
+  return `<ol class="alternativas ${modo === 'ver' ? 'so-ver' : modo === 'responder' ? 'responder' : ''}" aria-label="Alternativas">${itens}</ol>`;
 }
 
 const ICONE_CADEADO = `<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/></svg>`;
@@ -318,14 +319,20 @@ function telaResultado() {
   const q = POR_ID.get(M.perguntaAtual(partida));
   const r = partida.roundResults.at(-1);
   const ultima = M.ultimaRodada(partida);
+  const certa = q.alternatives.find(a => a.id === q.correctAnswer);
+  const minha = q.alternatives.find(a => a.id === r.answer);
+  const alt = (a, cls, marca) => `<div class="alt ${cls}"><span class="letra" aria-hidden="true">${a.id}</span><span><span class="sr-only">${a.id}: </span>${esc(a.text)}</span><span class="marca">${marca}</span></div>`;
   return `<div class="veredito ${r.correct ? 'acerto' : 'erro'}" role="status">
       <span class="icone" aria-hidden="true">${r.correct ? '✓' : '✗'}</span>
       <span class="veredito-texto"><span tabindex="-1" data-foco>${r.correct ? 'Acertou!' : 'Errou.'} <span class="delta">${sinal(r.delta)} ${Math.abs(r.delta) === 1 ? 'ponto' : 'pontos'}</span></span>
         <small class="conta" aria-label="Saldo de ${r.saldoAntes} para ${r.saldoDepois}">Saldo ${r.saldoAntes} → <b>${r.saldoDepois}</b></small></span></div>
-    <p class="enunciado enunciado-resultado">${esc(q.question)}</p>
-    ${listaAlternativas(q, 'resultado')}
-    <section class="explicacao">${naoRevisadaDeTeste(q) ? '<p class="selo-teste">Pergunta de teste, sem revisão editorial</p>' : ''}<p>${esc(q.explanation)}</p>
-      <p class="fonte">Fonte: ${q.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titulo)}</a>`).join(' · ')}</p></section>
+    <section class="gabarito" aria-label="Resposta certa">
+      <p class="gabarito-pergunta">${esc(q.question)}</p>
+      ${alt(certa, 'certa', r.correct ? '✓ Sua resposta' : '✓ Certa')}
+      ${r.correct ? '' : alt(minha, 'errada', '✗ Sua resposta')}
+      <p class="gabarito-explica">${esc(q.explanation)}</p>
+      <p class="fonte">${naoRevisadaDeTeste(q) ? '<span class="selo-teste">Pergunta de teste, sem revisão editorial</span> ' : ''}Fonte: ${q.sources.map(s => `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.titulo)}</a>`).join(' · ')}</p>
+    </section>
     ${barra(`<button class="btn btn-principal" data-acao="avancar">${ultima ? 'Ver resultado' : 'Próxima rodada'}</button>`)}`;
 }
 

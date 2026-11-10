@@ -32,46 +32,46 @@ export function svgTabuleiro(casaFinal = null) {
 
 const sorteio = (a, b) => a + Math.random() * (b - a);
 
+/** Gravidade única do tabuleiro, em px/ms². Com ela fixa, quique alto demora mais e quique baixo é rápido. */
+const G = 0.0024;
+
 /**
- * Monta a trajetória: queda inicial, um quique em cada fileira (para o lado que o motor decidiu),
- * e a chegada na casa com dois quiques curtos. Devolve quadros com tempo absoluto e os toques nos pinos.
+ * Trajetória com física simples: depois de cada batida a bolinha sai com uma velocidade vertical
+ * (para cima ou para baixo) e cai sob a mesma gravidade até o próximo pino. Só o tempo de cada trecho
+ * é sorteado, e ele define a altura do quique. O lado de cada batida vem do motor.
+ * Devolve pontos com tempo absoluto e os momentos em que a bolinha toca os pinos.
  */
 function trajetoria(plinko) {
   const pts = [], toques = [];
   let t = 0, direitas = 0;
   const contato = r => ({ x: xNaFileira(r, direitas) + sorteio(-2.5, 2.5), y: Y0 + r * DY - R_PINO - R_BOLA + 1 });
-  // queda inicial: sai de um ponto um pouco deslocado do centro e acelera
-  let a = { x: CX + sorteio(-7, 7), y: 4 }, b = contato(0);
-  const queda = 260;
-  for (let i = 1; i <= 6; i++) { const u = i / 6; pts.push({ t: t + queda * u, x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u * u }); }
-  t += queda; toques.push({ t, p: `0-0` });
+  // um voo balístico de A até B que dura T: x anda em velocidade constante, y segue a gravidade
+  const voo = (A, B, T, passos = 8) => {
+    const vy = (B.y - A.y - 0.5 * G * T * T) / T;
+    for (let i = 1; i <= passos; i++) { const u = i / passos, dt = T * u; pts.push({ t: t + dt, x: A.x + (B.x - A.x) * u, y: A.y + vy * dt + 0.5 * G * dt * dt }); }
+    t += T;
+  };
+  // queda livre a partir do repouso, um pouco fora do centro
+  const inicio = { x: CX + sorteio(-6, 6), y: 2 };
+  pts.push({ t: 0, ...inicio });
+  const primeiro = contato(0);
+  voo(inicio, primeiro, Math.sqrt(2 * (primeiro.y - inicio.y) / G), 6);
+  toques.push({ t, p: '0-0' });
   plinko.caminho.forEach((d, r) => {
     const de = pts.at(-1);
+    // às vezes a bolinha quica no mesmo pino antes de cair para o lado
+    if (r > 0 && Math.random() < 0.15) { voo(de, { x: de.x + (d === 'D' ? 1.5 : -1.5), y: de.y }, sorteio(70, 100), 4); toques.push({ t, p: `${r}-${direitas}` }); }
     if (d === 'D') direitas++;
     const ultimo = r === FILEIRAS - 1;
     const para = ultimo ? { x: pousoX(plinko.casa), y: POUSO_Y } : contato(r + 1);
-    const altura = sorteio(5, 13) + (ultimo ? 4 : 0);
-    const dur = sorteio(150, 230) + (ultimo ? 90 : 0);
-    // às vezes a bolinha dá um toquinho extra antes de seguir: só charme visual
-    if (!ultimo && r > 0 && Math.random() < 0.18) {
-      const meio = 90;
-      for (let i = 1; i <= 3; i++) { const u = i / 3; pts.push({ t: t + meio * u, x: de.x, y: de.y - 6 * 4 * u * (1 - u) }); }
-      t += meio; toques.push({ t, p: `${r}-${direitas - (d === 'D' ? 1 : 0)}` });
-    }
-    for (let i = 1; i <= 7; i++) {
-      const u = i / 7, ux = 1 - (1 - u) * (1 - u);
-      pts.push({ t: t + dur * u, x: de.x + (para.x - de.x) * ux, y: de.y + (para.y - de.y) * u * u - altura * 4 * u * (1 - u) });
-    }
-    t += dur;
+    voo(pts.at(-1), para, ultimo ? sorteio(230, 280) : sorteio(165, 245));
     if (!ultimo) toques.push({ t, p: `${r + 1}-${direitas}` });
   });
-  // chegada: dois quiques que morrem dentro da casa
+  // chegada: cada quique perde força (altura 8 e depois 3), no mesmo tempo que a gravidade pede
+  const chegada = t;
   const fim = pts.at(-1);
-  for (const [h, dur] of [[9, 170], [3, 110]]) {
-    for (let i = 1; i <= 4; i++) { const u = i / 4; pts.push({ t: t + dur * u, x: fim.x, y: fim.y - h * 4 * u * (1 - u) }); }
-    t += dur;
-  }
-  return { pts, toques, total: t, chegada: t - 280 };
+  for (const h of [8, 3]) voo(fim, fim, 2 * Math.sqrt(2 * h / G), 6);
+  return { pts, toques, total: t, chegada };
 }
 
 /**

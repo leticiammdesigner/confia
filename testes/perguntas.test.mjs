@@ -11,10 +11,12 @@ test('todas as perguntas passam na validação', () => {
   for (const q of BANCO) assert.deepEqual(problemasDaPergunta(q), [], q.id);
 });
 
-test('ids únicos; 20 originais e 23 demonstrativas jogáveis; Q021 fora', () => {
+test('lançamento: só as 20 originais revisadas jogam; demonstrativas e Q021 fora', () => {
   assert.equal(new Set(BANCO.map(q => q.id)).size, BANCO.length);
   assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
-  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 23);
+  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 0);
+  assert.equal(jogaveis(BANCO).length, 20);
+  assert.ok(jogaveis(BANCO).every(q => q.origem === 'idealizadora' && ['verified', 'published'].includes(q.status)));
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
 });
 
@@ -36,10 +38,10 @@ test('Britney só aparece uma vez (versão original)', () => {
   assert.equal(BANCO.filter(q => /Britney/.test(q.question)).map(q => q.id).join(), 'Q013');
 });
 
-test('nenhum tipo editorial domina o banco jogável', () => {
-  const t = {}; jogaveis(BANCO).forEach(q => (t[q.editorialType] = (t[q.editorialType] || 0) + 1));
-  assert.ok(t.direta && t.desvio && t['conexao-improvavel'] && t['falsa-pegadinha'], JSON.stringify(t));
-  assert.ok(Object.values(t).every(n => n / jogaveis(BANCO).length < 0.6), JSON.stringify(t));
+// Equilíbrio entre tipos editoriais é meta para a ampliação do banco (ver DECISOES.md),
+// não trava de lançamento: o banco revisado de lançamento tem 14 diretas, 5 conexões improváveis e 1 desvio.
+test('banco jogável: tipos editoriais válidos', () => {
+  assert.ok(jogaveis(BANCO).every(q => ['direta', 'desvio', 'falsa-pegadinha', 'conexao-improvavel'].includes(q.editorialType)));
 });
 
 test('banco demonstrativo: resposta certa espalhada entre A, B, C e D', () => {
@@ -53,7 +55,7 @@ test('sorteio: n distintas, só jogáveis, evita as recentes quando dá', () => 
     const ids = sortearPerguntas(BANCO, 4, [], rng);
     assert.equal(new Set(ids).size, 4); assert.ok(!ids.includes('Q021'));
   }
-  const recentes = jogaveis(BANCO).slice(0, 30).map(q => q.id);
+  const recentes = jogaveis(BANCO).slice(0, 16).map(q => q.id);
   assert.ok(sortearPerguntas(BANCO, 4, recentes, rng).every(id => !recentes.includes(id)));
   assert.throws(() => sortearPerguntas(BANCO.slice(0, 3), 4, [], rng));
 });

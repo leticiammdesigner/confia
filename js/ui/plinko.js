@@ -114,6 +114,10 @@ export function animarPlinko(svg, plinko, { reduzir = false } = {}) {
   // a casa afunda um pouquinho quando a bolinha chega
   try { extras.push(casa.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(4px)', offset: 0.35 }, { transform: 'translateY(0)' }], { duration: 380, delay: chegada, easing: 'ease-out' })); } catch { /* sem efeito */ }
 
-  const terminou = anim.finished.catch(() => {}).then(() => marcarFinal(pts));
-  return { terminou, pular: () => { try { anim.finish(); } catch { marcarFinal(pts); } } };
+  const pular = () => { try { anim.finish(); } catch { marcarFinal(pts); } };
+  // rede de segurança: se a animação ficar parada (aba em segundo plano, navegador econômico),
+  // o resultado aparece mesmo assim. O sorteio já estava decidido; isso só encerra o desenho.
+  const reserva = setTimeout(pular, total + 2000);
+  const terminou = anim.finished.catch(() => {}).then(() => { clearTimeout(reserva); marcarFinal(pts); });
+  return { terminou, pular };
 }

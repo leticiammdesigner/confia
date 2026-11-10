@@ -26,9 +26,11 @@ Decisões de implementação: ver `DECISOES.md`.
 
 **Limite conhecido do conteúdo:** com 20 perguntas, o jogo evita repetir as últimas 16 vistas. Quem jogar mais de 5 partidas começa a rever perguntas.
 
-**Fica para atualizações futuras**
-- Banco editorial: recuperar Q021 a Q027, revisar as 23 demonstrativas, ampliar o banco e equilibrar os tipos editoriais (hoje: 14 diretas, 5 conexões improváveis, 1 desvio, nenhuma falsa pegadinha).
-- Desafio do Dia, com as regras já aprovadas (ver `DECISOES.md`).
+**Fica para atualizações futuras** (aprovado em 10/11/2026, não implementar antes do lançamento)
+- Ampliar o banco editorial: recuperar Q021 a Q027 e revisar as 23 demonstrativas antes de qualquer uso público.
+- Aumentar a variedade de perguntas inesperadas e desvios (hoje: 14 diretas, 5 conexões improváveis, 1 desvio, nenhuma falsa pegadinha).
+- Evitar repetição perceptível entre partidas (hoje a 6ª partida já repete perguntas).
+- Desenvolver o Desafio do Dia, com as regras já aprovadas.
 - Partida completa (10 rodadas): o motor já suporta, mas não há entrada na interface.
 - Comparação coletiva e ranking (Supabase), sequência de dias jogados.
 - Anúncios: o adaptador existe e está desligado. Só com configuração e autorização explícitas.

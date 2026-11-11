@@ -14,13 +14,23 @@
 <link rel="preload" href="assets/fontes/atkinson-hyperlegible-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/matutar-base.css?v=1">
 <link rel="stylesheet" href="css/confia.css?v=3">
+<link rel="stylesheet" href="matutar-ui/matutar-ui.css?v=1.0.0">
+<link rel="stylesheet" href="matutar-ui/ponte-matutar-base.css?v=1.0.0">
+<link rel="stylesheet" href="css/confia-matutar.css?v=1">
 </head>
 <body>
 <a class="pular-conteudo btn" href="#app">Pular para o jogo</a>
-<header class="topo">
-  <a class="marca-hub" href="./" aria-label="Matutar Games, início do Confia?">MATUTAR <span>GAMES</span></a>
-  <button class="btn-link" type="button" id="abrirComoJogar">Como jogar</button>
-</header>
+<nav class="mt-barra" aria-label="Matutar Games">
+  <div class="mt-barra-dentro">
+    <a class="mt-voltar" href="https://matutar-games.netlify.app/" data-mt-home>
+      <span class="mt-seta" aria-hidden="true">←</span><span class="mt-pecas" aria-hidden="true"><i></i><i></i><i></i></span>Todos os jogos
+    </a>
+    <div class="mt-acoes">
+      <a class="inicio-jogo" href="./" id="inicioJogo" aria-label="Confia?, início do jogo">Confia?</a>
+      <button class="ajuda" type="button" id="abrirComoJogar" aria-label="Como jogar">?</button>
+    </div>
+  </div>
+</nav>
 <main id="app" tabindex="-1">
   <noscript><p class="painel aviso">O Confia? precisa de JavaScript ligado para funcionar.</p></noscript>
 </main>
@@ -52,6 +62,7 @@
     <button class="btn btn-principal" value="ok">Bora jogar</button>
   </form>
 </dialog>
-<script type="module" src="js/app.js?v=4"></script>
+<script src="matutar-ui/matutar-ui.js?v=1.0.0" defer></script>
+<script type="module" src="js/app.js?v=5"></script>
 </body>
 </html>

@@ -40,3 +40,6 @@ Decisões de implementação: ver `DECISOES.md`.
 - **Voltar para a home:** preencher `URL_HUB` em `js/config.js` com o endereço aprovado da home. A marca MATUTAR GAMES do topo passa a levar para a home. Vazio, ela volta ao início do Confia?.
 - **Independência:** o jogo não depende da home. Os dados locais usam só chaves `confia:*`, sem conflito com os outros jogos. O link de compartilhamento usa o endereço em que o jogo está, então continua certo se o jogo mudar de domínio.
 - `css/matutar-base.css` é a base compartilhada do hub (cores, fontes, botões). Mudanças nela devem valer para todos os jogos ao mesmo tempo.
+
+## Matutar UI
+Este jogo usa uma cópia da Matutar UI **v1.0.0** (pasta `matutar-ui`, versão em `matutar-ui/VERSAO`). A fonte de verdade fica no repositório `matutar-games`. Ajustes só deste jogo vão em `css/confia-matutar.css`.

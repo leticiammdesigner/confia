@@ -4,4 +4,4 @@
  * Com o endereço da home preenchido (ex.: 'https://matutar.games/'), a marca leva para a home do hub.
  * Mudar só quando a home estiver no ar e o endereço for aprovado.
  */
-export const URL_HUB = '';
+export const URL_HUB = 'https://matutar-games.netlify.app/'; // usado pelo cabeçalho da Matutar UI (index.html)

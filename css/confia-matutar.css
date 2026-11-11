@@ -1,0 +1,10 @@
+/* Confia? dentro da Matutar UI: tokens próprios do jogo na paleta da casa e a voz (Bungee) só no logo. */
+:root{--fonte-letreiro:var(--mt-titulo); --lilas-texto:#4B2F99}
+.mt-barra{--mt-largura:560px}
+.inicio-jogo{display:inline-flex;align-items:center;min-height:44px;padding:0 6px;font-family:'Bungee','Arial Black',sans-serif;font-size:14px;color:var(--mt-tinta);text-decoration:none;white-space:nowrap}
+.ajuda{width:44px;height:44px;border-radius:50%;border:var(--mt-traco);background:var(--mt-superficie);color:var(--mt-tinta);font:700 18px var(--mt-texto);cursor:pointer}
+/* a voz do Confia? continua no logo e no cartão final */
+.logo-confia,.carta-topo .logo-mini{font-family:'Bungee','Arial Black',Impact,sans-serif}
+.carta-topo .marca-hub{font-family:var(--mt-titulo);font-weight:800}
+/* sombras e contornos da casa: duros, porém discretos */
+.painel,.aposta,.plinko,.enunciado,.carta,.cartaz-confia{box-shadow:var(--mt-sombra)}

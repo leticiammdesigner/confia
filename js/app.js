@@ -391,7 +391,7 @@ function telaFim() {
 
 // ------------------------------------------------------------------ compartilhar
 function texto() {
-  const url = /^https?:$/.test(location.protocol) ? location.origin + location.pathname : '';
+  const url = 'https://confia-matutar.netlify.app/'; // endereço oficial: prévias não viram link compartilhado
   return textoCompartilhar(partida, { url });
 }
 async function compartilhar() {

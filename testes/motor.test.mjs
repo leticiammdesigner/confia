@@ -182,7 +182,7 @@ test('compartilhar: sem enunciado nem resposta', () => {
   let p = nova();
   for (const id of IDS) p = M.avancar(M.responder(M.confirmarAposta(p, { valor: 10, modo: 'seco' }), id === 'q3' ? 'A' : 'B', Q(id)));
   const t = textoCompartilhar(p, { url: 'https://exemplo.test' });
-  assert.match(t, /MATUTAR GAMES · CONFIA\?/); assert.match(t, /Saldo final: 120 pontos/); assert.match(t, /Acertos: 3\/4/); assert.match(t, /✅ ✅ ❌ ✅/);
+  assert.match(t, /^Confia\? · Partida/); assert.match(t, /Matutar Games · Ideias que dão jogo\.$/); assert.doesNotMatch(t, /🎰|🎯|➖/); assert.match(t, /Saldo final: 120 pontos/); assert.match(t, /Acertos: 3\/4/); assert.match(t, /✅ ✅ ❌ ✅/);
   assert.ok(!/q1|q2|Resposta|\bB\b/.test(t));
 });
 

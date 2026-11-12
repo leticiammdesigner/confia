@@ -5,6 +5,8 @@ Capturas de tela (opcional): defina CAPTURAS=/pasta/.
 """
 import os, sys, re, json
 from playwright.sync_api import sync_playwright
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import compartilhar_comum as comp
 BASE=sys.argv[1].rstrip('/') if len(sys.argv)>1 else 'http://localhost:8780'; R=[]
 S=os.environ.get('CAPTURAS')
 def ok(n,c,d=''): R.append((n,bool(c))); print('OK   ' if c else 'FALHA',n,d)
@@ -19,7 +21,7 @@ def correta(pg,e):
 with sync_playwright() as p:
     b=p.chromium.launch()
     for rot,ctxargs in [('celular',dict(**p.devices['Pixel 7'])),('desktop',dict(viewport={'width':1280,'height':900}))]:
-        ctx=b.new_context(permissions=['clipboard-read','clipboard-write'],**ctxargs); pg=ctx.new_page(); err=[]; vigiar(pg,err)
+        ctx=b.new_context(permissions=['clipboard-read','clipboard-write'],**ctxargs); comp.instalar(ctx); pg=ctx.new_page(); err=[]; vigiar(pg,err)
         clica=(lambda s: pg.tap(s)) if rot=='celular' else (lambda s: pg.click(s))
         pg.goto(BASE+'/'); pg.wait_for_timeout(400)
         ok(f'[{rot}] home: marca, nome e chamada', 'Todos os jogos' in pg.inner_text('.mt-barra') and pg.get_attribute('.mt-voltar','href')=='https://matutar-games.netlify.app/' and 'CONFIA' in pg.inner_text('h1') and 'Você confia no que sabe?' in pg.inner_text('main'))
@@ -95,8 +97,14 @@ with sync_playwright() as p:
         perguntas=[q for q in e['perguntas']]
         enunciados=pg.evaluate(f"import('./js/dados/banco.js').then(m=>m.BANCO.filter(q=>{json.dumps(perguntas)}.includes(q.id)).map(q=>[q.question.slice(0,25),...q.alternatives.map(a=>a.text)]))")
         vaza=[t for grupo in enunciados for t in grupo if len(t)>3 and t in txt]
-        ok(f'[{rot}] compartilhar: saldo, acertos, sem perguntas nem respostas', 'MATUTAR GAMES · CONFIA?' in txt and 'Saldo final: 30 pontos' in txt and 'Acertos: 3/4' in txt and not vaza, txt.replace('\n',' / ') + (' VAZA:'+str(vaza) if vaza else ''))
+        ok(f'[{rot}] compartilhar: saldo, acertos, sem perguntas nem respostas', txt.startswith('Confia? · ') and 'https://confia-matutar.netlify.app/' in txt and 'Saldo final: 30 pontos' in txt and 'Acertos: 3/4' in txt and not vaza, txt.replace('\n',' / ') + (' VAZA:'+str(vaza) if vaza else ''))
         ok(f'[{rot}] compartilhar: leva o endereço oficial do jogo', 'https://confia-matutar.netlify.app/' in txt and 'localhost' not in txt)
+        if rot=='celular':
+            for lw in (320,360,390):
+                pg.set_viewport_size({'width':lw,'height':800}); pg.wait_for_timeout(150)
+                comp.checar(pg, ok, f'[{lw}] compartilhar', '[data-acao=compartilhar]', '#statusCopia', '#textoCompartilhar', 'https://confia-matutar.netlify.app/', '.acoes-fim',
+                    lambda t: (t.startswith('Confia? · ') and 'Saldo final: 30 pontos · Acertos: 3/4' in t and not any(x in t for x in ('🎰','🎯','R$','reais')) and not [q for g in enunciados for q in g if len(q)>3 and q in t], ''))
+            pg.set_viewport_size(ctxargs.get('viewport',{'width':390,'height':844})); pg.wait_for_timeout(100)
         pg.reload(); pg.wait_for_timeout(300)
         hist=pg.evaluate("JSON.parse(localStorage.getItem('confia:historico:v1'))")
         ok(f'[{rot}] histórico: uma entrada por partida, mesmo após atualizar', len(hist)==1 and hist[0]['saldo']==30)

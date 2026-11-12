@@ -381,8 +381,9 @@ function telaFim() {
       </div>
     </article>
     <div class="acoes-fim">
-      <button class="btn btn-principal" data-acao="compartilhar">Compartilhar</button>
+      <button class="btn btn-principal" data-acao="compartilhar">Compartilhar resultado</button>
       <p class="status-copia" id="statusCopia" role="status"></p>
+      <textarea class="texto-compartilhar" id="textoCompartilhar" readonly hidden aria-label="Texto para compartilhar"></textarea>
       <button class="btn" data-acao="nova">Jogar de novo</button>
       <button class="btn-link" data-acao="inicio">Voltar ao início</button>
     </div>
@@ -394,22 +395,24 @@ function texto() {
   const url = 'https://confia-matutar.netlify.app/'; // endereço oficial: prévias não viram link compartilhado
   return textoCompartilhar(partida, { url });
 }
+// Padrão Matutar Games: janela nativa no celular; sem ela, copia; se nada funcionar, o texto aparece selecionado.
+// Cancelar não conta como compartilhado, e o evento só é registrado depois que a ação deu certo.
+function avisar(txt, tipo = '') { const st = document.getElementById('statusCopia'); st.className = 'status-copia' + (tipo ? ' ' + tipo : ''); st.textContent = txt; }
 async function compartilhar() {
   const t = texto();
-  registrar('resultado_compartilhado', { gameId: partida.gameId });
+  avisar('');
   if (navigator.share) {
-    try { await navigator.share({ text: t }); return; }
+    try { await navigator.share({ text: t }); avisar('Resultado compartilhado!', 'ok'); registrar('resultado_compartilhado', { gameId: partida.gameId, via: 'nativo' }); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }
   }
-  copiar();
+  copiar(t);
 }
-async function copiar() {
-  const t = texto(), st = document.getElementById('statusCopia');
-  try { await navigator.clipboard.writeText(t); st.textContent = 'Copiado! Sem spoiler das respostas.'; }
+async function copiar(t) {
+  try { await navigator.clipboard.writeText(t); avisar('Resultado copiado!', 'ok'); registrar('resultado_compartilhado', { gameId: partida.gameId, via: 'copia' }); }
   catch {
-    st.textContent = 'Não deu para copiar. Selecione o texto abaixo.';
-    if (!document.getElementById('textoCompartilhar')) st.insertAdjacentHTML('afterend', `<label class="sr-only" for="textoCompartilhar">Texto para compartilhar</label><textarea class="texto-compartilhar" id="textoCompartilhar" readonly>${esc(t)}</textarea>`);
-    const ta = document.getElementById('textoCompartilhar'); ta.focus(); ta.select();
+    const ta = document.getElementById('textoCompartilhar');
+    ta.value = t; ta.hidden = false; ta.style.height = ta.scrollHeight + 4 + 'px'; ta.focus(); ta.select();
+    avisar('Não deu para copiar. Copie o texto abaixo.', 'falhou');
   }
 }
 

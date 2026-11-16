@@ -97,6 +97,12 @@ with sync_playwright() as p:
         e=estado(pg); fim=pg.inner_text('.fim')
         ok(f'[{rot}] fim: saldo e acertos separados', e['phase']=='fim' and '40' in pg.inner_text('.saldo-final') and '3 de 4' in fim, fim.replace('\n',' / ')[:200])
         ok(f'[{rot}] fim: estatísticas (Plinko 1×, 1 recuperação)', '1×' in fim and 'Recuperações' in fim)
+        # nenhum rótulo pode vazar da caixinha: "Recuperações" é o mais largo
+        vaza=pg.evaluate("""() => [...document.querySelectorAll('.estatisticas div')].map(d => {
+          const t = d.querySelector('dt'), c = d.getBoundingClientRect(), r = t.getBoundingClientRect();
+          return { rotulo: t.textContent, folga: Math.round(Math.min(r.left - c.left, c.right - r.right)),
+                   corta: t.scrollWidth > t.clientWidth + 1 }; }).filter(x => x.folga < 0 || x.corta)""")
+        ok(f'[{rot}] rótulos das estatísticas dentro da caixa', not vaza, vaza)
         if rot=='celular' and S: pg.screenshot(path=S+'confia-'+'fim.png',full_page=True)
         clica('[data-acao=compartilhar]'); pg.wait_for_timeout(300)
         try: clip=pg.evaluate('navigator.clipboard.readText()')
@@ -108,8 +114,14 @@ with sync_playwright() as p:
         ok(f'[{rot}] compartilhar: saldo, acertos, sem perguntas nem respostas', txt.startswith('Confia? · ') and 'https://confia-matutar.netlify.app/' in txt and 'Saldo final: 40 pontos' in txt and 'Acertos: 3/4' in txt and not vaza, txt.replace('\n',' / ') + (' VAZA:'+str(vaza) if vaza else ''))
         ok(f'[{rot}] compartilhar: leva o endereço oficial do jogo', 'https://confia-matutar.netlify.app/' in txt and 'localhost' not in txt)
         if rot=='celular':
-            for lw in (320,360,390):
+            for lw in (320,360,390,430):
                 pg.set_viewport_size({'width':lw,'height':800}); pg.wait_for_timeout(150)
+                vaza=pg.evaluate("""() => [...document.querySelectorAll('.estatisticas div')].map(d => {
+                  const t = d.querySelector('dt'), c = d.getBoundingClientRect(), r = t.getBoundingClientRect();
+                  return { rotulo: t.textContent, folga: Math.round(Math.min(r.left - c.left, c.right - r.right)),
+                           corta: t.scrollWidth > t.clientWidth + 1 }; }).filter(x => x.folga < 0 || x.corta)""")
+                ok(f'[{lw}] rótulos das estatísticas dentro da caixa', not vaza, vaza)
+                if S: pg.screenshot(path=S+f'confia-fim-{lw}.png', full_page=True)
                 comp.checar(pg, ok, f'[{lw}] compartilhar', '[data-acao=compartilhar]', '#statusCopia', '#textoCompartilhar', 'https://confia-matutar.netlify.app/', '.acoes-fim',
                     lambda t: (t.startswith('Confia? · ') and 'Saldo final: 40 pontos · Acertos: 3/4' in t and not any(x in t for x in ('🎰','🎯','R$','reais')) and not [q for g in enunciados for q in g if len(q)>3 and q in t], ''))
             pg.set_viewport_size(ctxargs.get('viewport',{'width':390,'height':844})); pg.wait_for_timeout(100)

@@ -114,15 +114,17 @@ test('aposta inválida e pergunta errada são recusadas', () => {
   assert.throws(() => M.responder(p, 'E', Q('q1')), M.ErroDeTransicao);
 });
 
-test('zerar na primeira rodada → recuperação gratuita de 10 → partida continua', () => {
+test('zerar na primeira rodada → recuperação gratuita de 20 → partida continua', () => {
   let p = M.responder(M.confirmarAposta(nova(), { valor: 100, modo: 'seco' }), 'A', Q('q1'));
   assert.equal(p.balance, 0);
   p = M.avancar(p);
   assert.equal(p.phase, 'zerado');
   assert.throws(() => M.confirmarAposta(p, { valor: 10, modo: 'seco' }), M.ErroDeTransicao);
   p = M.recuperar(p);
-  assert.equal(p.balance, 10); assert.equal(p.freeRecoveryCount, 1); assert.equal(p.roundIndex, 1); assert.equal(p.phase, 'aposta');
-  assert.ok(!M.plinkoDisponivel(p), 'com 10 pontos o Plinko não está disponível');
+  assert.equal(p.balance, 20); assert.equal(p.freeRecoveryCount, 1); assert.equal(p.roundIndex, 1); assert.equal(p.phase, 'aposta');
+  // o ponto da recuperação de 20: dá para apostar menos do que tudo, e o Plinko volta a ser uma opção
+  assert.deepEqual(R.limitesAposta(p.balance, 'seco'), { min: 10, max: 20 });
+  assert.ok(M.plinkoDisponivel(p), 'com 20 pontos o Plinko está disponível');
   assert.throws(() => M.recuperar(p), M.ErroDeTransicao, 'não recupera com saldo positivo');
 });
 

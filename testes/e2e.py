@@ -68,9 +68,17 @@ with sync_playwright() as p:
         clica('[data-acao=avancar]'); pg.wait_for_timeout(200)
         ok(f'[{rot}] saldo zerado: tela de recuperação, sem anúncio', pg.locator('.zerado').count()==1 and pg.locator('[data-acao=anuncio]').count()==0)
         if rot=='celular' and S: pg.screenshot(path=S+'confia-'+'zerado.png',full_page=True)
+        # voltar ao jogo com a partida zerada abre a home, não a tela de zerado: senão parece saldo perdido
+        pg.reload(); pg.wait_for_timeout(300)
+        ok(f'[{rot}] partida zerada reabre na home', pg.locator('.home').count()==1 and pg.locator('.zerado').count()==0)
+        ok(f'[{rot}] a home oferece continuar de onde parou e começar outra', pg.locator('[data-acao=continuar]').count()==1 and pg.locator('[data-acao=nova]').count()==1 and 'saldo 0' in pg.inner_text('[data-acao=continuar]'))
+        clica('[data-acao=continuar]'); pg.wait_for_timeout(200)
+        ok(f'[{rot}] continuar volta para a tela de recuperação', pg.locator('.zerado').count()==1)
         clica('[data-acao=recuperar]'); pg.wait_for_timeout(200)
-        e=estado(pg); ok(f'[{rot}] recuperação gratuita: +10 e segue na rodada 3', e['balance']==10 and e['freeRecoveryCount']==1 and e['roundIndex']==2)
-        ok(f'[{rot}] com 10 pontos o Plinko fica indisponível e explicado', pg.is_disabled('input[value=plinko]') and pg.locator('#motivoPlinko').count()==1)
+        e=estado(pg); ok(f'[{rot}] recuperação gratuita: +20 e segue na rodada 3', e['balance']==20 and e['freeRecoveryCount']==1 and e['roundIndex']==2)
+        # com 20 a recuperação deixa escolha: dá para apostar menos do que tudo, e o Plinko volta
+        ok(f'[{rot}] com 20 pontos dá para apostar menos do que tudo', pg.locator('[data-acao=ficha][data-valor="10"]').count()==1)
+        ok(f'[{rot}] com 20 pontos o Plinko volta a ser possível', not pg.is_disabled('input[value=plinko]'))
         # teclado: rodada 3 inteira só com teclado
         pg.focus('[data-acao=ficha]'); pg.keyboard.press('Enter'); pg.wait_for_timeout(50)
         pg.focus('#botaoConfirmar'); pg.keyboard.press('Enter'); pg.wait_for_timeout(400)
@@ -80,14 +88,14 @@ with sync_playwright() as p:
         certa=correta(pg,e); pg.focus(f'button.alt[data-letra={certa}]')
         outline=pg.evaluate("getComputedStyle(document.activeElement).outlineStyle")
         pg.keyboard.press('Enter'); pg.wait_for_timeout(200)
-        ok(f'[{rot}] resposta pelo teclado, foco visível nas alternativas', estado(pg)['balance']==20, outline)
+        ok(f'[{rot}] resposta pelo teclado, foco visível nas alternativas', estado(pg)['balance']==30, outline)
         clica('[data-acao=avancar]'); pg.wait_for_timeout(200)
         # rodada 4: seco 10, acerta
         clica('[data-acao=ficha][data-valor="10"]'); clica('#botaoConfirmar'); pg.wait_for_timeout(400)
         e=estado(pg); clica(f'button.alt[data-letra={correta(pg,e)}]'); pg.wait_for_timeout(200)
         clica('[data-acao=avancar]'); pg.wait_for_timeout(300)
         e=estado(pg); fim=pg.inner_text('.fim')
-        ok(f'[{rot}] fim: saldo e acertos separados', e['phase']=='fim' and '30' in pg.inner_text('.saldo-final') and '3 de 4' in fim, fim.replace('\n',' / ')[:200])
+        ok(f'[{rot}] fim: saldo e acertos separados', e['phase']=='fim' and '40' in pg.inner_text('.saldo-final') and '3 de 4' in fim, fim.replace('\n',' / ')[:200])
         ok(f'[{rot}] fim: estatísticas (Plinko 1×, 1 recuperação)', '1×' in fim and 'Recuperações' in fim)
         if rot=='celular' and S: pg.screenshot(path=S+'confia-'+'fim.png',full_page=True)
         clica('[data-acao=compartilhar]'); pg.wait_for_timeout(300)
@@ -97,17 +105,17 @@ with sync_playwright() as p:
         perguntas=[q for q in e['perguntas']]
         enunciados=pg.evaluate(f"import('./js/dados/banco.js').then(m=>m.BANCO.filter(q=>{json.dumps(perguntas)}.includes(q.id)).map(q=>[q.question.slice(0,25),...q.alternatives.map(a=>a.text)]))")
         vaza=[t for grupo in enunciados for t in grupo if len(t)>3 and t in txt]
-        ok(f'[{rot}] compartilhar: saldo, acertos, sem perguntas nem respostas', txt.startswith('Confia? · ') and 'https://confia-matutar.netlify.app/' in txt and 'Saldo final: 30 pontos' in txt and 'Acertos: 3/4' in txt and not vaza, txt.replace('\n',' / ') + (' VAZA:'+str(vaza) if vaza else ''))
+        ok(f'[{rot}] compartilhar: saldo, acertos, sem perguntas nem respostas', txt.startswith('Confia? · ') and 'https://confia-matutar.netlify.app/' in txt and 'Saldo final: 40 pontos' in txt and 'Acertos: 3/4' in txt and not vaza, txt.replace('\n',' / ') + (' VAZA:'+str(vaza) if vaza else ''))
         ok(f'[{rot}] compartilhar: leva o endereço oficial do jogo', 'https://confia-matutar.netlify.app/' in txt and 'localhost' not in txt)
         if rot=='celular':
             for lw in (320,360,390):
                 pg.set_viewport_size({'width':lw,'height':800}); pg.wait_for_timeout(150)
                 comp.checar(pg, ok, f'[{lw}] compartilhar', '[data-acao=compartilhar]', '#statusCopia', '#textoCompartilhar', 'https://confia-matutar.netlify.app/', '.acoes-fim',
-                    lambda t: (t.startswith('Confia? · ') and 'Saldo final: 30 pontos · Acertos: 3/4' in t and not any(x in t for x in ('🎰','🎯','R$','reais')) and not [q for g in enunciados for q in g if len(q)>3 and q in t], ''))
+                    lambda t: (t.startswith('Confia? · ') and 'Saldo final: 40 pontos · Acertos: 3/4' in t and not any(x in t for x in ('🎰','🎯','R$','reais')) and not [q for g in enunciados for q in g if len(q)>3 and q in t], ''))
             pg.set_viewport_size(ctxargs.get('viewport',{'width':390,'height':844})); pg.wait_for_timeout(100)
         pg.reload(); pg.wait_for_timeout(300)
         hist=pg.evaluate("JSON.parse(localStorage.getItem('confia:historico:v1'))")
-        ok(f'[{rot}] histórico: uma entrada por partida, mesmo após atualizar', len(hist)==1 and hist[0]['saldo']==30)
+        ok(f'[{rot}] histórico: uma entrada por partida, mesmo após atualizar', len(hist)==1 and hist[0]['saldo']==40)
         ok(f'[{rot}] home mostra a última partida', 'Últimas partidas' in pg.inner_text('main'))
         ok(f'[{rot}] sem rolagem lateral', pg.evaluate('document.documentElement.scrollWidth<=innerWidth'))
         ok(f'[{rot}] sem erros de console nem de rede', not err, '; '.join(err[:4]))

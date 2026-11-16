@@ -214,9 +214,10 @@ button.alt:disabled{cursor:default}
 .acoes-fim{display:grid;gap:8px}
 .acoes-fim .btn{width:100%}
 .acoes-fim .btn-link{justify-self:center}
-.status-copia{text-align:center;font-weight:700;font-size:14px}
-.status-copia:empty{display:none}
-.texto-compartilhar{width:100%;min-height:150px;border:2.5px solid var(--tinta);border-radius:10px;padding:10px;font:inherit;font-size:16px;background:#fff}
+.status-copia{margin:0;min-height:1.35em;text-align:center;font-weight:600;font-size:14px;line-height:1.35;color:var(--mt-tinta-2)}
+.status-copia.ok{color:var(--mt-sucesso)}
+.status-copia.ok::before{content:"✓ "}
+.texto-compartilhar{width:100%;box-sizing:border-box;resize:none;white-space:pre-wrap;overflow-wrap:anywhere;border:2.5px solid var(--tinta);border-radius:10px;padding:10px;font:inherit;font-size:16px;background:#fff}
 
 /* ---------------------------------------------------------------- como jogar */
 dialog{border:var(--traco);border-radius:18px;background:var(--papel);color:var(--tinta);padding:0;max-width:min(520px,calc(100vw - 32px));max-height:calc(100dvh - 32px);box-shadow:6px 6px 0 var(--lilas)}

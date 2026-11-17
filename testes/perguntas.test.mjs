@@ -22,6 +22,18 @@ test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
 });
 
+test('princípio do Confia?: a resposta certa se espalha pelas quatro letras', () => {
+  // Gabarito concentrado numa letra ensina a chutar. Nenhuma letra pode ficar acima de 35% nem
+  // abaixo de 15% do que está em jogo. Perguntas com alternativas numéricas mantêm a ordem natural.
+  const J = jogaveis(BANCO);
+  const conta = { A: 0, B: 0, C: 0, D: 0 };
+  for (const q of J) conta[q.correctAnswer]++;
+  for (const letra of ['A', 'B', 'C', 'D']) {
+    const fatia = conta[letra] / J.length;
+    assert.ok(fatia >= 0.15 && fatia <= 0.35, `letra ${letra} com ${conta[letra]} de ${J.length}`);
+  }
+});
+
 test('revisadas: fonte https em tudo que joga, e fora de partida quando falta link ou repete fato', () => {
   for (const q of PERGUNTAS_REVISADAS) {
     assert.equal(q.origem, 'idealizadora', q.id);

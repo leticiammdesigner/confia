@@ -43,7 +43,8 @@ const anunciar = t => { avisos.textContent = ''; setTimeout(() => (avisos.textCo
 // ------------------------------------------------------------------ estado
 function iniciar() {
   const salva = S.partidaSalva();
-  if (salva && M.estadoValido(salva, JOGAVEIS)) { partida = salva; if (partida.phase !== 'fim') tela = 'jogo'; }
+  // Partida zerada ou terminada abre na home: cair direto no "Zerou!" de ontem parece saldo perdido.
+  if (salva && M.estadoValido(salva, JOGAVEIS)) { partida = salva; if (partida.phase !== 'fim' && partida.phase !== 'zerado') tela = 'jogo'; }
   else if (salva) S.apagarPartida();
   const pref = document.getElementById('menosMovimento');
   pref.checked = reduzirMovimento();

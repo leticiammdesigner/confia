@@ -207,9 +207,11 @@ button.alt:disabled{cursor:default}
 .saldo-final{font-weight:700;font-size:58px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:4px 4px 0 var(--lilas)}
 .saldo-final small{display:block;font-size:14px;text-shadow:none;color:var(--tinta-suave)}
 .linha-rodadas{display:flex;justify-content:center;gap:8px;font-size:20px}
-.estatisticas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0}
-.estatisticas div{border:2px solid var(--tinta);border-radius:10px;padding:6px 2px;background:var(--papel)}
-.estatisticas dt{font-size:11px;font-weight:700;color:var(--tinta-suave);line-height:1.15}
+/* Duas colunas no celular: em quatro, "Recuperações" não cabe na caixa e vaza. */
+.estatisticas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:0}
+@media (min-width:520px){.estatisticas{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.estatisticas div{border:2px solid var(--tinta);border-radius:10px;padding:6px;background:var(--papel);min-width:0}
+.estatisticas dt{font-size:11px;font-weight:700;color:var(--tinta-suave);line-height:1.15;overflow-wrap:anywhere}
 .estatisticas dd{margin:0;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
 .acoes-fim{display:grid;gap:8px}
 .acoes-fim .btn{width:100%}

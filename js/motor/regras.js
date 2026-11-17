@@ -5,7 +5,9 @@
 
 export const SALDO_INICIAL = 100;
 export const APOSTA_MINIMA = 10;
-export const RECUPERACAO_GRATUITA = 10;
+/* 20, não 10: com 10 a aposta mínima também é 10, então a pessoa é obrigada a apostar tudo
+   e a rodada seguinte deixa de ser uma escolha. Com 20 dá para apostar 10 e guardar 10, e o Plinko destrava. */
+export const RECUPERACAO_GRATUITA = 20;
 /** Pior multiplicador possível do Plinko: limita a aposta para nunca perder mais do que o saldo. */
 export const EXPOSICAO_MAXIMA_PLINKO = 2;
 

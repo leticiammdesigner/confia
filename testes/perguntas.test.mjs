@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { BANCO } from '../js/dados/banco.js';
 import { PERGUNTAS_ORIGINAIS } from '../js/dados/perguntas-originais.js';
 import { PERGUNTAS_DEMONSTRATIVAS } from '../js/dados/perguntas.js';
+import { PERGUNTAS_REVISADAS } from '../js/dados/perguntas-revisadas.js';
 import { problemasDaPergunta, jogaveis, sortearPerguntas, naoRevisadaDeTeste, jogavel } from '../js/motor/perguntas.js';
 import { geradorComSemente } from '../js/motor/plinko.js';
 
@@ -11,13 +12,26 @@ test('todas as perguntas passam na validação', () => {
   for (const q of BANCO) assert.deepEqual(problemasDaPergunta(q), [], q.id);
 });
 
-test('lançamento: só as 20 originais revisadas jogam; demonstrativas e Q021 fora', () => {
+test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 fora', () => {
   assert.equal(new Set(BANCO.map(q => q.id)).size, BANCO.length);
   assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
+  assert.equal(jogaveis(PERGUNTAS_REVISADAS).length, 26);
   assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 0);
-  assert.equal(jogaveis(BANCO).length, 20);
+  assert.equal(jogaveis(BANCO).length, 46);
   assert.ok(jogaveis(BANCO).every(q => q.origem === 'idealizadora' && ['verified', 'published'].includes(q.status)));
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
+});
+
+test('revisadas: fonte https em tudo que joga, e fora de partida quando falta link ou repete fato', () => {
+  for (const q of PERGUNTAS_REVISADAS) {
+    assert.equal(q.origem, 'idealizadora', q.id);
+    assert.ok(['verified', 'needs_fact_check'].includes(q.status), q.id);
+    assert.ok(q.auditoria && q.sources.length === 1, q.id);
+    if (q.status === 'verified') assert.match(q.sources[0].url, /^https:\/\//, q.id);
+    else assert.ok(!jogavel(q), q.id);     // sem link ou repetida: não entra em partida
+  }
+  const fora = PERGUNTAS_REVISADAS.filter(q => q.status !== 'verified').map(q => q.id);
+  assert.deepEqual(fora, ['R006', 'R015', 'R019', 'R027', 'R029', 'R030', 'R032', 'R010']);
 });
 
 test('demonstrativas: separadas, não revisadas, nunca verificadas e fora do desafio diário', () => {
@@ -28,10 +42,10 @@ test('demonstrativas: separadas, não revisadas, nunca verificadas e fora do des
   }
   assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
   const diario = jogaveis(BANCO, { diario: true });
-  assert.equal(diario.length, 20);
+  assert.equal(diario.length, 46);
   assert.ok(diario.every(q => q.origem === 'idealizadora'));
   const rng = geradorComSemente('diario');
-  for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => /^Q0(0\d|1\d|20)$/.test(id)));
+  for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => /^(Q0(0\d|1\d|20)|R0\d\d)$/.test(id)));
 });
 
 test('Britney só aparece uma vez (versão original)', () => {

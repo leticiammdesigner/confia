@@ -2,4 +2,5 @@
 import { PERGUNTAS_ORIGINAIS } from './perguntas-originais.js';
 import { PERGUNTAS_REVISADAS } from './perguntas-revisadas.js';
 import { PERGUNTAS_DEMONSTRATIVAS } from './perguntas.js';
-export const BANCO = [...PERGUNTAS_ORIGINAIS, ...PERGUNTAS_REVISADAS, ...PERGUNTAS_DEMONSTRATIVAS];
+import { PERGUNTAS_PROPOSTAS } from './perguntas-propostas.js';
+export const BANCO = [...PERGUNTAS_ORIGINAIS, ...PERGUNTAS_REVISADAS, ...PERGUNTAS_DEMONSTRATIVAS, ...PERGUNTAS_PROPOSTAS];

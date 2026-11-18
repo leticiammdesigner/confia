@@ -5,6 +5,7 @@ import { BANCO } from '../js/dados/banco.js';
 import { PERGUNTAS_ORIGINAIS } from '../js/dados/perguntas-originais.js';
 import { PERGUNTAS_DEMONSTRATIVAS } from '../js/dados/perguntas.js';
 import { PERGUNTAS_REVISADAS } from '../js/dados/perguntas-revisadas.js';
+import { PERGUNTAS_PROPOSTAS } from '../js/dados/perguntas-propostas.js';
 import { problemasDaPergunta, jogaveis, sortearPerguntas, naoRevisadaDeTeste, jogavel } from '../js/motor/perguntas.js';
 import { geradorComSemente } from '../js/motor/plinko.js';
 
@@ -20,6 +21,16 @@ test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 
   assert.equal(jogaveis(BANCO).length, 46);
   assert.ok(jogaveis(BANCO).every(q => q.origem === 'idealizadora' && ['verified', 'published'].includes(q.status)));
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
+});
+
+test('propostas do assistente: nunca entram em partida antes da revisão', () => {
+  for (const q of PERGUNTAS_PROPOSTAS) {
+    assert.equal(q.origem, 'assistente', q.id);
+    assert.equal(q.status, 'needs_editorial_review', q.id);
+    assert.ok(!jogavel(q) && !naoRevisadaDeTeste(q), q.id);   // nem na versão de teste
+    assert.match(q.sources[0].url, /^https:\/\//, q.id);
+  }
+  assert.equal(jogaveis(BANCO).filter(q => q.origem === 'assistente').length, 0);
 });
 
 test('princípio do Confia?: a resposta certa se espalha pelas quatro letras', () => {

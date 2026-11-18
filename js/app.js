@@ -393,7 +393,7 @@ function telaFim() {
 
 // ------------------------------------------------------------------ compartilhar
 function texto() {
-  const url = 'https://confia-matutar.netlify.app/'; // endereço oficial: prévias não viram link compartilhado
+  const url = 'https://matutargames.com.br/confia/'; // endereço oficial: prévias não viram link compartilhado
   return textoCompartilhar(partida, { url });
 }
 // Padrão Matutar Games: janela nativa no celular; sem ela, copia; se nada funcionar, o texto aparece selecionado.

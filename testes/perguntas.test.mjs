@@ -17,20 +17,23 @@ test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 
   assert.equal(new Set(BANCO.map(q => q.id)).size, BANCO.length);
   assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
   assert.equal(jogaveis(PERGUNTAS_REVISADAS).length, 26);
-  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 0);
-  assert.equal(jogaveis(BANCO).length, 46);
-  assert.ok(jogaveis(BANCO).every(q => q.origem === 'idealizadora' && ['verified', 'published'].includes(q.status)));
+  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 10);
+  assert.equal(jogaveis(PERGUNTAS_PROPOSTAS).length, 9);
+  assert.equal(jogaveis(BANCO).length, 65);
+  // quem escreveu não importa para jogar; importa ter passado pela revisão da idealizadora
+  assert.ok(jogaveis(BANCO).every(q => ['verified', 'published'].includes(q.status)));
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
 });
 
-test('propostas do assistente: nunca entram em partida antes da revisão', () => {
+test('propostas do assistente: só jogam depois da revisão, e sempre com link', () => {
   for (const q of PERGUNTAS_PROPOSTAS) {
     assert.equal(q.origem, 'assistente', q.id);
-    assert.equal(q.status, 'needs_editorial_review', q.id);
-    assert.ok(!jogavel(q) && !naoRevisadaDeTeste(q), q.id);   // nem na versão de teste
+    assert.ok(['verified', 'needs_editorial_review'].includes(q.status), q.id);
     assert.match(q.sources[0].url, /^https:\/\//, q.id);
+    assert.match(q.auditoria, /18\/11\/2026/, q.id);
+    // pendente de revisão não joga nem na versão de teste: origem 'assistente' não é 'demonstrativo'
+    if (q.status === 'needs_editorial_review') assert.ok(!jogavel(q) && !naoRevisadaDeTeste(q), q.id);
   }
-  assert.equal(jogaveis(BANCO).filter(q => q.origem === 'assistente').length, 0);
 });
 
 test('princípio do Confia?: a resposta certa se espalha pelas quatro letras', () => {
@@ -57,18 +60,20 @@ test('revisadas: fonte https em tudo que joga, e fora de partida quando falta li
   assert.deepEqual(fora, ['R006', 'R015', 'R019', 'R027', 'R029', 'R030', 'R032', 'R010']);
 });
 
-test('demonstrativas: separadas, não revisadas, nunca verificadas e fora do desafio diário', () => {
+test('nada entra em partida sem revisão da idealizadora, nem no desafio diário', () => {
   for (const q of PERGUNTAS_DEMONSTRATIVAS) {
     assert.equal(q.origem, 'demonstrativo', q.id);
-    assert.equal(q.status, 'needs_editorial_review', q.id);
-    assert.ok(naoRevisadaDeTeste(q) && !jogavel(q), q.id);
+    assert.ok(['verified', 'needs_editorial_review'].includes(q.status), q.id);
+    if (q.status === 'needs_editorial_review') assert.ok(naoRevisadaDeTeste(q) && !jogavel(q), q.id);
+    assert.match(q.auditoria, /idealizadora/, q.id);     // quem revisou, e o que falta quando está fora
   }
   assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
   const diario = jogaveis(BANCO, { diario: true });
-  assert.equal(diario.length, 46);
-  assert.ok(diario.every(q => q.origem === 'idealizadora'));
+  assert.equal(diario.length, 65);
+  assert.ok(diario.every(q => ['verified', 'published'].includes(q.status)));
   const rng = geradorComSemente('diario');
-  for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => /^(Q0(0\d|1\d|20)|R0\d\d)$/.test(id)));
+  const idsJogaveis = new Set(diario.map(q => q.id));
+  for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => idsJogaveis.has(id)));
 });
 
 test('Britney só aparece uma vez (versão original)', () => {
@@ -81,10 +86,8 @@ test('banco jogável: tipos editoriais válidos', () => {
   assert.ok(jogaveis(BANCO).every(q => ['direta', 'desvio', 'falsa-pegadinha', 'conexao-improvavel'].includes(q.editorialType)));
 });
 
-test('banco demonstrativo: resposta certa espalhada entre A, B, C e D', () => {
-  const c = { A: 0, B: 0, C: 0, D: 0 }; PERGUNTAS_DEMONSTRATIVAS.forEach(q => c[q.correctAnswer]++);
-  for (const l of 'ABCD') assert.ok(c[l] >= 4 && c[l] <= 8, JSON.stringify(c));
-});
+// A regra do gabarito espalhado vale para o que está em jogo, não arquivo por arquivo:
+// o teste 'princípio do Confia?' acima cobre isso sobre jogaveis(BANCO).
 
 test('sorteio: n distintas, só jogáveis, evita as recentes quando dá', () => {
   const rng = geradorComSemente('sorteio');

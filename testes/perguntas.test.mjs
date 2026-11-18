@@ -17,9 +17,9 @@ test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 
   assert.equal(new Set(BANCO.map(q => q.id)).size, BANCO.length);
   assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
   assert.equal(jogaveis(PERGUNTAS_REVISADAS).length, 26);
-  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 10);
+  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 17);
   assert.equal(jogaveis(PERGUNTAS_PROPOSTAS).length, 9);
-  assert.equal(jogaveis(BANCO).length, 65);
+  assert.equal(jogaveis(BANCO).length, 72);
   // quem escreveu não importa para jogar; importa ter passado pela revisão da idealizadora
   assert.ok(jogaveis(BANCO).every(q => ['verified', 'published'].includes(q.status)));
   assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
@@ -69,7 +69,7 @@ test('nada entra em partida sem revisão da idealizadora, nem no desafio diário
   }
   assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
   const diario = jogaveis(BANCO, { diario: true });
-  assert.equal(diario.length, 65);
+  assert.equal(diario.length, 72);
   assert.ok(diario.every(q => ['verified', 'published'].includes(q.status)));
   const rng = geradorComSemente('diario');
   const idsJogaveis = new Set(diario.map(q => q.id));

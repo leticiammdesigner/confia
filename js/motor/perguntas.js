@@ -1,13 +1,15 @@
 /**
  * Confia? · banco de perguntas: validação e sorteio.
  * Status (Adendo ao PRD v1.1): needs_fact_check · needs_editorial_review · verified · published.
+ * Mais 'aposentada', criado em 19/11/2026: decisão editorial de tirar a pergunta de partida para
+ * sempre, sem apagar o registro dela do arquivo. Nunca entra em STATUS_JOGAVEIS.
  * Entram em partidas só os status de STATUS_JOGAVEIS, e sempre com fonte https.
  * Na versão de teste jogam "published" e "verified"; para o lançamento, deixar só "published".
  */
 
 export const TIPOS = ['direta', 'desvio', 'falsa-pegadinha', 'conexao-improvavel'];
 export const DIFICULDADES = ['facil', 'media', 'dificil'];
-export const STATUS = ['needs_fact_check', 'needs_editorial_review', 'verified', 'published'];
+export const STATUS = ['needs_fact_check', 'needs_editorial_review', 'verified', 'published', 'aposentada'];
 export const STATUS_JOGAVEIS = ['published', 'verified'];
 export const jogavel = q => STATUS_JOGAVEIS.includes(q.status);
 

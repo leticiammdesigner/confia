@@ -135,7 +135,8 @@ export const PERGUNTAS_ORIGINAIS = [
   // O anexo terminou no meio da explicação desta pergunta: fica fora das partidas até chegar o texto completo.
   { ...base, id: 'Q021', titulo: 'Para quem foi escrita Malandragem?', alternatives: alt('Cássia Eller', 'Angela Ro Ro', 'Bebel Gilberto', 'Zélia Duncan'), correctAnswer: 'B',
     question: 'A música "Malandragem", composta por Cazuza e Frejat e eternizada na voz de Cássia Eller, foi originalmente escrita pensando em qual cantora?',
-    explanation: 'Cazuza e Frejat compuseram [texto incompleto no anexo recebido]',
-    realCategory: 'Música brasileira', apparentCategory: 'Cantoras brasileiras', editorialType: 'direta', difficulty: 'media', status: 'needs_editorial_review',
-    sources: [], pendencia: 'Anexo cortado: falta o fim da explicação, tipo, dificuldade e fonte.' },
+    explanation: 'Cazuza e Frejat compuseram a música em 1988 pensando em Angela Ro Ro, que recusou gravar. Cássia Eller gravou em 1994, no disco que leva o nome dela, e a canção virou um dos maiores sucessos da carreira.',
+    realCategory: 'Música brasileira', apparentCategory: 'Cantoras brasileiras', editorialType: 'direta', difficulty: 'media', status: 'verified',
+    sources: [fonte('Wikipédia: Malandragem (canção)', 'https://pt.wikipedia.org/wiki/Malandragem_(can%C3%A7%C3%A3o)')],
+    auditoria: 'A explicação vinha cortada no anexo de 07/11/2026 e foi completada em 19/11/2026 com a fonte consultada na data, que confirma a composição em 1988 para Angela Ro Ro, a recusa dela e a gravação de Cássia Eller em 1994. Liberada para partida pela idealizadora em 19/11/2026.' },
 ];

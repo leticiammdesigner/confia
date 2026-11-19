@@ -3,6 +3,7 @@
  * status 'verified' = texto e fonte aprovados, entra em partida.
  * status 'needs_editorial_review' = fora de partida, e a auditoria diz o que falta (fonte fraca,
  * link quebrado ou troca de pergunta pendente).
+ * status 'aposentada' = fora de partida para sempre, por decisão editorial. Fica no arquivo como registro.
  */
 const alt = (...t) => t.map((text, i) => ({ id: 'ABCD'[i], text }));
 const fonte = (titulo, url) => ({ titulo, url });
@@ -17,11 +18,11 @@ export const PERGUNTAS_DEMONSTRATIVAS = [
     auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026.' },
 
   { ...base, id: 'mus-001', alternatives: alt('Vênus', 'Mercúrio', 'Marte', 'Júpiter'), correctAnswer: 'B',
-    question: 'Qual planeta deu nome ao sobrenome artístico de Freddie Mercury, vocalista do Queen?',
-    explanation: 'Ele virou Freddie Mercury. Mercury é Mercúrio em inglês.',
-    realCategory: 'Música', apparentCategory: 'Astronomia', editorialType: 'conexao-improvavel', difficulty: 'facil', status: 'needs_editorial_review',
-    sources: [fonte('eBiografia: Freddie Mercury', 'https://www.ebiografia.com/freddie_mercury/')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: fonte fraca (eBiografia), falta link oficial.' },
+    question: 'Qual planeta do Sistema Solar tem o mesmo nome do sobrenome artístico de Freddie Mercury, vocalista do Queen?',
+    explanation: 'Farrokh Bulsara adotou o nome Freddie Mercury quando o grupo virou Queen. Mercury é Mercúrio em inglês, o planeta mais perto do Sol.',
+    realCategory: 'Música', apparentCategory: 'Astronomia', editorialType: 'conexao-improvavel', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Britannica: Freddie Mercury', 'https://www.britannica.com/biography/Freddie-Mercury')],
+    auditoria: 'Revisada pela idealizadora em 18/11/2026. Fonte trocada em 19/11/2026 pela Britannica, consultada na data. O enunciado dizia que o planeta deu nome ao sobrenome: a causalidade não se sustenta nas fontes, só a coincidência de nome, e foi corrigido.' },
 
   { ...base, id: 'esp-001', alternatives: alt('Seis', 'Oito', 'Dez', 'Doze'), correctAnswer: 'A',
     question: 'Quantos jogadores de cada equipe ficam em quadra durante uma partida de vôlei?',
@@ -61,9 +62,9 @@ export const PERGUNTAS_DEMONSTRATIVAS = [
   { ...base, id: 'cie-001', alternatives: alt('Prata', 'Ouro', 'Cobre', 'Platina'), correctAnswer: 'B',
     question: 'Na tabela periódica, qual elemento químico é representado pelo símbolo Au?',
     explanation: 'Au vem do latim aurum, que quer dizer ouro.',
-    realCategory: 'Ciência', apparentCategory: 'Esportes', editorialType: 'desvio', difficulty: 'facil', status: 'needs_editorial_review',
-    sources: [fonte('Toda Matéria: O elemento químico ouro (Au)', 'https://www.todamateria.com.br/ouro-elemento-quimico/')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: fonte fraca (Toda Matéria), falta link oficial.' },
+    realCategory: 'Ciência', apparentCategory: 'Esportes', editorialType: 'desvio', difficulty: 'facil', status: 'verified',
+    sources: [fonte('CIAAW/IUPAC: Gold', 'https://ciaaw.org/gold.htm')],
+    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fonte trocada em 19/11/2026 pela CIAAW, comissão da IUPAC, consultada na data: "The symbol Au derives from the Latin aurum".' },
 
   { ...base, id: 'cie-002', alternatives: alt('Pele', 'Coração', 'Fígado', 'Pulmão'), correctAnswer: 'A',
     question: 'Qual é o maior órgão do corpo humano em área e peso?',
@@ -75,9 +76,9 @@ export const PERGUNTAS_DEMONSTRATIVAS = [
   { ...base, id: 'cie-003', alternatives: alt('Netuno', 'Urano', 'Saturno', 'Plutão'), correctAnswer: 'D',
     question: 'Qual corpo celeste foi reclassificado como planeta-anão pela União Astronômica Internacional em 2006?',
     explanation: 'Em 2006, a União Astronômica Internacional criou a categoria de planeta-anão, e Plutão foi reclassificado.',
-    realCategory: 'Ciência', apparentCategory: 'Astronomia', editorialType: 'falsa-pegadinha', difficulty: 'facil', status: 'needs_editorial_review',
-    sources: [fonte('Canaltech: É verdade que Plutão é só um planeta-anão?', 'https://canaltech.com.br/curiosidades/e-verdade-que-plutao-e-so-um-planeta-anao-o-astro-foi-reclassificado-em-2006/')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: fonte fraca (Canaltech), falta link oficial.' },
+    realCategory: 'Ciência', apparentCategory: 'Astronomia', editorialType: 'falsa-pegadinha', difficulty: 'facil', status: 'verified',
+    sources: [fonte('União Astronômica Internacional: resultado da Assembleia Geral de 2006', 'https://www.iau.org/news/pressreleases/detail/iau0603')],
+    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fonte trocada em 19/11/2026 pelo comunicado da própria IAU, consultado na data: "Pluto is a dwarf planet by the above definition".' },
 
   { ...base, id: 'cin-001', alternatives: alt('A pílula azul', 'A pílula vermelha', 'A pílula verde', 'A pílula amarela'), correctAnswer: 'B',
     question: 'Em Matrix (1999), qual pílula Neo escolhe tomar quando Morpheus lhe oferece duas opções?',
@@ -89,23 +90,23 @@ export const PERGUNTAS_DEMONSTRATIVAS = [
   { ...base, id: 'tec-002', alternatives: alt('Rubi', 'Esmeralda', 'Safira', 'Diamante'), correctAnswer: 'A',
     question: 'Que pedra preciosa dá nome à linguagem de programação criada pelo japonês Yukihiro Matsumoto?',
     explanation: 'A linguagem Ruby, lançada nos anos 1990, tem nome de pedra preciosa: rubi.',
-    realCategory: 'Tecnologia', apparentCategory: 'Pedras preciosas', editorialType: 'conexao-improvavel', difficulty: 'media', status: 'needs_editorial_review',
-    sources: [fonte('Simple English Wikipedia: Ruby (programming language)', 'https://simple.wikipedia.com/wiki/Ruby_(programming_language)')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: link quebrado (simple.wikipedia.com) e reformulação de dificuldade pendente.' },
+    realCategory: 'Tecnologia', apparentCategory: 'Pedras preciosas', editorialType: 'conexao-improvavel', difficulty: 'media', status: 'verified',
+    sources: [fonte('Ruby: FAQ oficial, de onde vem o nome', 'https://www.ruby-lang.org/en/documentation/faq/1/')],
+    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. O link antigo apontava para simple.wikipedia.com, domínio que não existe. Trocado em 19/11/2026 pelo FAQ do site oficial da linguagem, consultado na data: "Matz wanted to use a jewel name for his new language, so he named Ruby after a colleague birthstone".' },
 
   { ...base, id: 'his-002', alternatives: alt('Janeiro', 'Abril', 'Outubro', 'Julho'), correctAnswer: 'C',
     question: 'Qual mês dá nome à revolução de 1917 que levou os bolcheviques ao poder na Rússia?',
     explanation: 'É a Revolução de Outubro. Pelo calendário juliano, usado na Rússia na época, ela começou em 25 de outubro (7 de novembro no nosso calendário).',
-    realCategory: 'História', apparentCategory: 'Calendário', editorialType: 'conexao-improvavel', difficulty: 'media', status: 'needs_editorial_review',
-    sources: [fonte('História do Mundo: Revolução de Outubro (1917)', 'https://www.historiadomundo.com.br/idade-contemporanea/revolucao-de-outubro-1917.htm')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: fonte fraca (História do Mundo), falta link oficial.' },
+    realCategory: 'História', apparentCategory: 'Calendário', editorialType: 'conexao-improvavel', difficulty: 'media', status: 'verified',
+    sources: [fonte('Britannica: October Revolution', 'https://www.britannica.com/topic/October-Revolution-Russian-history')],
+    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fonte trocada em 19/11/2026 pela Britannica, consultada na data, que traz as duas datas: 24 e 25 de outubro pelo calendário antigo, 6 e 7 de novembro pelo novo.' },
 
   { ...base, id: 'ani-001', alternatives: alt('Água-viva', 'Polvo', 'Caranguejo', 'Estrela-do-mar'), correctAnswer: 'B',
     question: 'Qual destes animais marinhos possui três corações?',
     explanation: 'O polvo tem dois corações que bombeiam sangue para as brânquias e um terceiro que leva sangue para o resto do corpo.',
-    realCategory: 'Animais e natureza', apparentCategory: 'Animais', editorialType: 'direta', difficulty: 'media', status: 'needs_editorial_review',
+    realCategory: 'Animais e natureza', apparentCategory: 'Animais', editorialType: 'direta', difficulty: 'media', status: 'aposentada',
     sources: [fonte('Canaltech: Por que polvos têm três corações?', 'https://canaltech.com.br/meio-ambiente/por-que-polvos-tem-tres-coracoes/')],
-    auditoria: 'Revisada e aprovada pela idealizadora em 18/11/2026. Fora de partida: fonte fraca (Canaltech) e repete a R004, já revisada.' },
+    auditoria: 'Aposentada em 19/11/2026 a pedido da idealizadora: pergunta o mesmo que a R004, que já está em partida e tem fonte própria. Fica no arquivo como registro, fora de partida para sempre.' },
 
   { ...base, id: 'his-003', alternatives: alt('Cleópatra', 'Nefertiti', 'Ramsés II', 'Tutancâmon'), correctAnswer: 'D',
     question: 'Qual faraó egípcio teve sua tumba encontrada quase intacta por Howard Carter, no Vale dos Reis, em 1922?',

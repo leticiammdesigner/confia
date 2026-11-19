@@ -6,6 +6,7 @@
  *   - fonte sem endereço https (o jogo exige link https em tudo que vai ao ar);
  *   - pergunta que repete fato já coberto por outra do banco, esperando a escolha de qual fica.
  * As fontes apontam para o domínio indicado na revisão, não para a página exata. Trocar por link direto quando houver.
+ * Em 19/11/2026 as sete que estavam sem link ganharam fonte conferida, cada página aberta antes de entrar aqui.
  */
 const alt = (...t) => t.map((text, i) => ({ id: 'ABCD'[i], text }));
 const fonte = (titulo, url) => ({ titulo, url, revisadaEm: '2026-11-17' });
@@ -50,9 +51,9 @@ export const PERGUNTAS_REVISADAS = [
   { ...base, id: 'R006', titulo: 'A fábrica de baralhos', alternatives: alt('França', 'Itália', 'Estados Unidos', 'Japão'), correctAnswer: 'D',
     question: 'Em qual país fica a sede da Nintendo, empresa que começou fabricando cartas de baralho?',
     explanation: 'A Nintendo nasceu em Quioto, no Japão, em 1889, fazendo cartas de hanafuda. Os videogames só vieram quase um século depois.',
-    realCategory: 'Empresas', apparentCategory: 'Geografia', editorialType: 'conexao-improvavel', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('Nintendo UK', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Empresas', apparentCategory: 'Geografia', editorialType: 'conexao-improvavel', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Nintendo: Company History (site corporativo oficial)', 'https://www.nintendo.co.jp/corporate/en/history/index.html')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte oficial localizada em 19/11/2026 e consultada na data: a linha de 1889 registra Fusajiro Yamauchi fabricando cartas hanafuda em Quioto.' },
 
   { ...base, id: 'R007', titulo: 'O primeiro vídeo', alternatives: alt('Zoológico', 'Praia', 'Escola', 'Aeroporto'), correctAnswer: 'A',
     question: 'Onde foi gravado o primeiro vídeo publicado no YouTube?',
@@ -106,9 +107,9 @@ export const PERGUNTAS_REVISADAS = [
   { ...base, id: 'R015', titulo: 'O tio dos três', alternatives: alt('Mickey', 'Pateta', 'Donald', 'Pluto'), correctAnswer: 'C',
     question: 'Qual desses personagens é tio de Huguinho, Zezinho e Luisinho?',
     explanation: 'Os três são sobrinhos do Pato Donald, filhos da irmã dele, Dumbela. O Tio Patinhas é tio-avô.',
-    realCategory: 'Quadrinhos', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('Disney Shows FITT', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Quadrinhos', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Wikipédia: Huey, Dewey, and Louie', 'https://en.wikipedia.org/wiki/Huey,_Dewey,_and_Louie')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte localizada em 19/11/2026 e consultada na data: "They are the nephews of Donald Duck". A Disney não publica uma página de personagem com esse parentesco, então ficou a enciclopédia.' },
 
   { ...base, id: 'R016', titulo: 'O triângulo de Minas', alternatives: alt('Azul', 'Amarelo', 'Vermelho', 'Preto'), correctAnswer: 'C',
     question: 'De que cor é o triângulo no centro da bandeira de Minas Gerais?',
@@ -134,9 +135,9 @@ export const PERGUNTAS_REVISADAS = [
   { ...base, id: 'R019', titulo: 'As vidas do gato', alternatives: alt('6', '7', '8', '9'), correctAnswer: 'B',
     question: 'Segundo a crença popular brasileira, quantas vidas tem um gato?',
     explanation: 'No Brasil e em boa parte da Europa latina fala-se em sete vidas. Em inglês a mesma crença vira nove.',
-    realCategory: 'Cultura popular', apparentCategory: 'Cultura popular', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('Super', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Cultura popular', apparentCategory: 'Cultura popular', editorialType: 'direta', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Correio Braziliense: a verdade por trás do mito das 7 vidas dos gatos', 'https://www.correiobraziliense.com.br/cbradar/a-verdade-por-tras-do-mito-das-7-vidas-dos-gatos/')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte localizada em 19/11/2026 e consultada na data: "em países de língua portuguesa e espanhola, fala-se em sete vidas, enquanto em países de língua inglesa, o número é nove". Por ser crença popular, não existe fonte oficial.' },
 
   { ...base, id: 'R020', titulo: 'O ponto mais distante de tudo', alternatives: alt('Pacífico', 'Atlântico', 'Índico', 'Ártico'), correctAnswer: 'A',
     question: 'Em qual oceano fica o Ponto Nemo, o lugar no mar mais distante de qualquer terra firme?',
@@ -218,30 +219,30 @@ export const PERGUNTAS_REVISADAS = [
   { ...base, id: 'R027', titulo: 'A plataforma do trem', alternatives: alt('7½', '8¾', '9¾', '10½'), correctAnswer: 'C',
     question: 'Qual é o número da plataforma de onde sai o trem para Hogwarts?',
     explanation: 'A plataforma 9¾ fica entre a 9 e a 10 da estação King’s Cross, em Londres, e só é alcançada atravessando a barreira.',
-    realCategory: 'Literatura', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('Official Harry Potter Encyclopedia', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Literatura', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Harry Potter (site oficial): Platform Nine and Three-Quarters', 'https://www.harrypotter.com/fact-file/locations/platform-nine-and-three-quarters')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte oficial localizada em 19/11/2026 e consultada na data: a plataforma é descrita como aquela de onde o Expresso de Hogwarts parte e chega.' },
 
   { ...base, id: 'R029', titulo: 'O que a rainha ofereceu', alternatives: alt('Corda', 'Espelho', 'Maçã', 'Sapatinho'), correctAnswer: 'C',
     question: 'Na animação da Disney de 1937, o que a rainha oferece à Branca de Neve para fazê-la cair em um sono profundo?',
     explanation: 'A maçã envenenada. Em outras versões da história, de Grimm em diante, a rainha usa também um espartilho e um pente.',
-    realCategory: 'Cinema', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('Disney Movies', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Cinema', apparentCategory: 'Cultura pop', editorialType: 'direta', difficulty: 'facil', status: 'verified',
+    sources: [fonte('D23, o clube oficial da Disney: Snow White and the Seven Dwarfs', 'https://d23.com/walt-disney-archives/snow-white-and-the-seven-dwarfs/')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte oficial localizada em 19/11/2026 e consultada na data: "she persuades Snow White to bite into a poisoned apple".' },
 
   { ...base, id: 'R030', titulo: 'A voz de Skyfall', alternatives: alt('Rihanna', 'Lady Gaga', 'Beyoncé', 'Adele'), correctAnswer: 'D',
     question: 'Quem canta a música-tema de 007 — Operação Skyfall?',
     explanation: 'Adele gravou Skyfall em 2012. A canção levou o Oscar de Melhor Canção Original no ano seguinte.',
-    realCategory: 'Música', apparentCategory: 'Cinema', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
-    sources: [fonte('James Bond 007', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Música', apparentCategory: 'Cinema', editorialType: 'direta', difficulty: 'facil', status: 'verified',
+    sources: [fonte('Sony Music (comunicado oficial): Adele, Skyfall', 'https://sony.mediaroom.com/2012-10-04-Adeles-Skyfall-Official-Theme-Song-To-Latest-James-Bond-007-Feature-SKYFALL-Globally-Available-On-iTunes-Now')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte oficial localizada em 19/11/2026 e consultada na data: a gravação é descrita como "the official theme song to the upcoming 007 adventure".' },
 
   { ...base, id: 'R032', titulo: 'A estreia do Castelo', alternatives: alt('Globo', 'TV Cultura', 'SBT', 'Band'), correctAnswer: 'B',
     question: 'Em qual emissora estreou Castelo Rá-Tim-Bum em 1994?',
     explanation: 'O Castelo estreou na TV Cultura, em maio de 1994, e ficou no ar até 1997.',
-    realCategory: 'Televisão', apparentCategory: 'Televisão', editorialType: 'direta', difficulty: 'media', status: 'needs_fact_check',
-    sources: [fonte('30/4/1994', '')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026, mas a fonte veio sem endereço https. Fica fora de partida até o link exato ser informado.' },
+    realCategory: 'Televisão', apparentCategory: 'Televisão', editorialType: 'direta', difficulty: 'media', status: 'verified',
+    sources: [fonte('Wikipédia: Castelo Rá-Tim-Bum', 'https://en.wikipedia.org/wiki/Castelo_R%C3%A1-Tim-Bum')],
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Fonte localizada em 19/11/2026 e consultada na data: estreia em 9 de maio de 1994 na TV Cultura. A emissora não mantém página de acervo do programa, então ficou a enciclopédia.' },
 
   { ...base, id: 'R010', titulo: 'A pílula de Neo', alternatives: alt('Azul', 'Vermelho', 'Branco', 'Verde'), correctAnswer: 'B',
     question: 'De que cor é a pílula que Neo toma em Matrix para descobrir a verdade?',

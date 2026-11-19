@@ -13,16 +13,17 @@ test('todas as perguntas passam na validação', () => {
   for (const q of BANCO) assert.deepEqual(problemasDaPergunta(q), [], q.id);
 });
 
-test('lançamento: só o que a idealizadora revisou joga; demonstrativas e Q021 fora', () => {
+test('lançamento: só o que a idealizadora revisou joga', () => {
   assert.equal(new Set(BANCO.map(q => q.id)).size, BANCO.length);
-  assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 20);
-  assert.equal(jogaveis(PERGUNTAS_REVISADAS).length, 26);
-  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 17);
-  assert.equal(jogaveis(PERGUNTAS_PROPOSTAS).length, 9);
-  assert.equal(jogaveis(BANCO).length, 72);
+  assert.equal(jogaveis(PERGUNTAS_ORIGINAIS).length, 21);
+  assert.equal(jogaveis(PERGUNTAS_REVISADAS).length, 33);
+  assert.equal(jogaveis(PERGUNTAS_DEMONSTRATIVAS).length, 22);
+  assert.equal(jogaveis(PERGUNTAS_PROPOSTAS).length, 20);
+  assert.equal(jogaveis(BANCO).length, 96);
   // quem escreveu não importa para jogar; importa ter passado pela revisão da idealizadora
   assert.ok(jogaveis(BANCO).every(q => ['verified', 'published'].includes(q.status)));
-  assert.ok(!jogaveis(BANCO).some(q => q.id === 'Q021'));
+  // o que está fora é decisão editorial registrada, não esquecimento
+  assert.deepEqual(BANCO.filter(q => !jogaveis([q]).length).map(q => q.id), ['R010', 'ani-001']);
 });
 
 test('propostas do assistente: só jogam depois da revisão, e sempre com link', () => {
@@ -30,7 +31,7 @@ test('propostas do assistente: só jogam depois da revisão, e sempre com link',
     assert.equal(q.origem, 'assistente', q.id);
     assert.ok(['verified', 'needs_editorial_review'].includes(q.status), q.id);
     assert.match(q.sources[0].url, /^https:\/\//, q.id);
-    assert.match(q.auditoria, /18\/11\/2026/, q.id);
+    assert.match(q.auditoria, /1[89]\/11\/2026/, q.id);
     // pendente de revisão não joga nem na versão de teste: origem 'assistente' não é 'demonstrativo'
     if (q.status === 'needs_editorial_review') assert.ok(!jogavel(q) && !naoRevisadaDeTeste(q), q.id);
   }
@@ -56,20 +57,23 @@ test('revisadas: fonte https em tudo que joga, e fora de partida quando falta li
     if (q.status === 'verified') assert.match(q.sources[0].url, /^https:\/\//, q.id);
     else assert.ok(!jogavel(q), q.id);     // sem link ou repetida: não entra em partida
   }
+  // Em 19/11/2026 as sete sem link ganharam fonte conferida. Só a R010 segue fora, por repetir
+  // o fato da cin-001 (a pílula de Matrix), e espera a escolha de qual das duas fica.
   const fora = PERGUNTAS_REVISADAS.filter(q => q.status !== 'verified').map(q => q.id);
-  assert.deepEqual(fora, ['R006', 'R015', 'R019', 'R027', 'R029', 'R030', 'R032', 'R010']);
+  assert.deepEqual(fora, ['R010']);
 });
 
 test('nada entra em partida sem revisão da idealizadora, nem no desafio diário', () => {
   for (const q of PERGUNTAS_DEMONSTRATIVAS) {
     assert.equal(q.origem, 'demonstrativo', q.id);
-    assert.ok(['verified', 'needs_editorial_review'].includes(q.status), q.id);
+    assert.ok(['verified', 'needs_editorial_review', 'aposentada'].includes(q.status), q.id);
     if (q.status === 'needs_editorial_review') assert.ok(naoRevisadaDeTeste(q) && !jogavel(q), q.id);
+    if (q.status === 'aposentada') assert.ok(!jogavel(q), q.id);     // fora de partida para sempre
     assert.match(q.auditoria, /idealizadora/, q.id);     // quem revisou, e o que falta quando está fora
   }
   assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
   const diario = jogaveis(BANCO, { diario: true });
-  assert.equal(diario.length, 72);
+  assert.equal(diario.length, 96);
   assert.ok(diario.every(q => ['verified', 'published'].includes(q.status)));
   const rng = geradorComSemente('diario');
   const idsJogaveis = new Set(diario.map(q => q.id));
@@ -93,7 +97,8 @@ test('sorteio: n distintas, só jogáveis, evita as recentes quando dá', () => 
   const rng = geradorComSemente('sorteio');
   for (let i = 0; i < 200; i++) {
     const ids = sortearPerguntas(BANCO, 4, [], rng);
-    assert.equal(new Set(ids).size, 4); assert.ok(!ids.includes('Q021'));
+    assert.equal(new Set(ids).size, 4);
+    assert.ok(!ids.includes('ani-001') && !ids.includes('R010'));     // as duas que estão fora
   }
   const recentes = jogaveis(BANCO).slice(0, 16).map(q => q.id);
   assert.ok(sortearPerguntas(BANCO, 4, recentes, rng).every(id => !recentes.includes(id)));

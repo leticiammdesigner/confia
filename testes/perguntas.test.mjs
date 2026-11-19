@@ -52,15 +52,16 @@ test('princípio do Confia?: a resposta certa se espalha pelas quatro letras', (
 test('revisadas: fonte https em tudo que joga, e fora de partida quando falta link ou repete fato', () => {
   for (const q of PERGUNTAS_REVISADAS) {
     assert.equal(q.origem, 'idealizadora', q.id);
-    assert.ok(['verified', 'needs_fact_check'].includes(q.status), q.id);
+    assert.ok(['verified', 'needs_fact_check', 'aposentada'].includes(q.status), q.id);
     assert.ok(q.auditoria && q.sources.length === 1, q.id);
     if (q.status === 'verified') assert.match(q.sources[0].url, /^https:\/\//, q.id);
     else assert.ok(!jogavel(q), q.id);     // sem link ou repetida: não entra em partida
   }
-  // Em 19/11/2026 as sete sem link ganharam fonte conferida. Só a R010 segue fora, por repetir
-  // o fato da cin-001 (a pílula de Matrix), e espera a escolha de qual das duas fica.
+  // Em 19/11/2026 as sete sem link ganharam fonte conferida, e a R010 foi aposentada: perguntava
+  // o mesmo que a cin-001 (a pílula de Matrix), e a idealizadora escolheu ficar com aquela.
   const fora = PERGUNTAS_REVISADAS.filter(q => q.status !== 'verified').map(q => q.id);
   assert.deepEqual(fora, ['R010']);
+  assert.equal(PERGUNTAS_REVISADAS.find(q => q.id === 'R010').status, 'aposentada');
 });
 
 test('nada entra em partida sem revisão da idealizadora, nem no desafio diário', () => {

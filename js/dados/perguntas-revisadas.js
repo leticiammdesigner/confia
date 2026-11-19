@@ -247,7 +247,7 @@ export const PERGUNTAS_REVISADAS = [
   { ...base, id: 'R010', titulo: 'A pílula de Neo', alternatives: alt('Azul', 'Vermelho', 'Branco', 'Verde'), correctAnswer: 'B',
     question: 'De que cor é a pílula que Neo toma em Matrix para descobrir a verdade?',
     explanation: 'A vermelha mostra a realidade; a azul devolveria Neo à vida de antes.',
-    realCategory: 'Cinema', apparentCategory: 'Cinema', editorialType: 'direta', difficulty: 'facil', status: 'needs_fact_check',
+    realCategory: 'Cinema', apparentCategory: 'Cinema', editorialType: 'direta', difficulty: 'facil', status: 'aposentada',
     sources: [fonte('START.umd.edu', 'https://start.umd.edu')],
-    auditoria: 'Revisada pela idealizadora em 17/11/2026. Repete fato já coberto por outra pergunta do banco; fica fora de partida até a idealizadora escolher qual das duas fica.' },
+    auditoria: 'Revisada pela idealizadora em 17/11/2026. Aposentada em 19/11/2026: pergunta o mesmo que a cin-001, e a idealizadora escolheu ficar com aquela, cujo enunciado cita o Morpheus e o ano. Fica no arquivo como registro, fora de partida para sempre.' },
 ];

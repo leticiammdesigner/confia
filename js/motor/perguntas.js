@@ -4,7 +4,11 @@
  * Mais 'aposentada', criado em 19/11/2026: decisão editorial de tirar a pergunta de partida para
  * sempre, sem apagar o registro dela do arquivo. Nunca entra em STATUS_JOGAVEIS.
  * Entram em partidas só os status de STATUS_JOGAVEIS, e sempre com fonte https.
- * Na versão de teste jogam "published" e "verified"; para o lançamento, deixar só "published".
+ *
+ * Havia aqui uma nota dizendo para deixar só "published" no lançamento. Ela ficou obsoleta e
+ * era uma armadilha: em 23/11/2026 as 96 perguntas em partida são todas "verified" e nenhuma é
+ * "published", então seguir a nota deixaria o jogo sem pergunta nenhuma. Hoje "verified" quer
+ * dizer revisada e aprovada pela idealizadora, que é o que basta para jogar.
  */
 
 export const TIPOS = ['direta', 'desvio', 'falsa-pegadinha', 'conexao-improvavel'];

@@ -201,7 +201,6 @@ function telaHome() {
     <p class="chamada">Você confia no que sabe?</p>
     ${hist.length ? `<section class="painel anteriores" aria-labelledby="tituloAnteriores"><h2 id="tituloAnteriores">Últimas partidas</h2><ol>${hist.map(h =>
       `<li><span>${new Date(h.em).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span><span><b>${h.saldo}</b> pts · ${h.acertos}/${h.rodadas} acertos</span></li>`).join('')}</ol></section>` : ''}
-    <p class="em-breve">Partida completa e Desafio do dia chegam em breve.</p>
   </section>`;
 }
 

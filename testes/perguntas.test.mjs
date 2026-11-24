@@ -21,7 +21,7 @@ test('lançamento: só o que a idealizadora revisou joga', () => {
   assert.equal(jogaveis(PERGUNTAS_PROPOSTAS).length, 20);
   assert.equal(jogaveis(BANCO).length, 96);
   // quem escreveu não importa para jogar; importa ter passado pela revisão da idealizadora
-  assert.ok(jogaveis(BANCO).every(q => ['verified', 'published'].includes(q.status)));
+  assert.ok(jogaveis(BANCO).every(q => q.status === 'published'));
   // o que está fora é decisão editorial registrada, não esquecimento
   assert.deepEqual(BANCO.filter(q => !jogaveis([q]).length).map(q => q.id), ['R010', 'ani-001']);
 });
@@ -29,7 +29,7 @@ test('lançamento: só o que a idealizadora revisou joga', () => {
 test('propostas do assistente: só jogam depois da revisão, e sempre com link', () => {
   for (const q of PERGUNTAS_PROPOSTAS) {
     assert.equal(q.origem, 'assistente', q.id);
-    assert.ok(['verified', 'needs_editorial_review'].includes(q.status), q.id);
+    assert.ok(['published', 'needs_editorial_review'].includes(q.status), q.id);
     assert.match(q.sources[0].url, /^https:\/\//, q.id);
     assert.match(q.auditoria, /1[89]\/11\/2026/, q.id);
     // pendente de revisão não joga nem na versão de teste: origem 'assistente' não é 'demonstrativo'
@@ -52,14 +52,14 @@ test('princípio do Confia?: a resposta certa se espalha pelas quatro letras', (
 test('revisadas: fonte https em tudo que joga, e fora de partida quando falta link ou repete fato', () => {
   for (const q of PERGUNTAS_REVISADAS) {
     assert.equal(q.origem, 'idealizadora', q.id);
-    assert.ok(['verified', 'needs_fact_check', 'aposentada'].includes(q.status), q.id);
+    assert.ok(['published', 'needs_fact_check', 'aposentada'].includes(q.status), q.id);
     assert.ok(q.auditoria && q.sources.length === 1, q.id);
-    if (q.status === 'verified') assert.match(q.sources[0].url, /^https:\/\//, q.id);
+    if (q.status === 'published') assert.match(q.sources[0].url, /^https:\/\//, q.id);
     else assert.ok(!jogavel(q), q.id);     // sem link ou repetida: não entra em partida
   }
   // Em 19/11/2026 as sete sem link ganharam fonte conferida, e a R010 foi aposentada: perguntava
   // o mesmo que a cin-001 (a pílula de Matrix), e a idealizadora escolheu ficar com aquela.
-  const fora = PERGUNTAS_REVISADAS.filter(q => q.status !== 'verified').map(q => q.id);
+  const fora = PERGUNTAS_REVISADAS.filter(q => q.status !== 'published').map(q => q.id);
   assert.deepEqual(fora, ['R010']);
   assert.equal(PERGUNTAS_REVISADAS.find(q => q.id === 'R010').status, 'aposentada');
 });
@@ -67,7 +67,7 @@ test('revisadas: fonte https em tudo que joga, e fora de partida quando falta li
 test('nada entra em partida sem revisão da idealizadora, nem no desafio diário', () => {
   for (const q of PERGUNTAS_DEMONSTRATIVAS) {
     assert.equal(q.origem, 'demonstrativo', q.id);
-    assert.ok(['verified', 'needs_editorial_review', 'aposentada'].includes(q.status), q.id);
+    assert.ok(['published', 'needs_editorial_review', 'aposentada'].includes(q.status), q.id);
     if (q.status === 'needs_editorial_review') assert.ok(naoRevisadaDeTeste(q) && !jogavel(q), q.id);
     if (q.status === 'aposentada') assert.ok(!jogavel(q), q.id);     // fora de partida para sempre
     assert.match(q.auditoria, /idealizadora/, q.id);     // quem revisou, e o que falta quando está fora
@@ -75,7 +75,7 @@ test('nada entra em partida sem revisão da idealizadora, nem no desafio diário
   assert.ok(PERGUNTAS_ORIGINAIS.every(q => q.origem === 'idealizadora'));
   const diario = jogaveis(BANCO, { diario: true });
   assert.equal(diario.length, 96);
-  assert.ok(diario.every(q => ['verified', 'published'].includes(q.status)));
+  assert.ok(diario.every(q => q.status === 'published'));
   const rng = geradorComSemente('diario');
   const idsJogaveis = new Set(diario.map(q => q.id));
   for (let i = 0; i < 100; i++) assert.ok(sortearPerguntas(BANCO, 4, [], rng, { diario: true }).every(id => idsJogaveis.has(id)));
@@ -110,5 +110,19 @@ test('pergunta sem fonte não pode ser jogável', () => {
   const q = { ...PERGUNTAS_ORIGINAIS[0], id: 'x-1', status: 'needs_fact_check', sources: [] };
   assert.deepEqual(problemasDaPergunta(q), []);
   assert.ok(!jogaveis([q]).length);
-  assert.ok(problemasDaPergunta({ ...q, status: 'verified' }).includes('jogável sem fonte https'));
+  assert.ok(problemasDaPergunta({ ...q, status: 'published' }).includes('jogável sem fonte https'));
+});
+
+// Promover uma pergunta aprovada é um passo manual, e passo manual se esquece. Se alguma ficar
+// parada fora de partida, que seja por decisão registrada, não por descuido: toda pergunta que
+// não está em partida precisa dizer na auditoria por que está fora.
+test('nenhuma pergunta fica fora de partida sem motivo escrito', () => {
+  const fora = BANCO.filter(q => !jogavel(q));
+  for (const q of fora) {
+    assert.ok(q.auditoria && q.auditoria.length > 20,
+      `${q.id} está fora de partida (${q.status}) e a auditoria não diz por quê`);
+  }
+  // 'verified' quer dizer aprovada mas ainda não publicada: não deveria sobrar nenhuma parada aí
+  const esquecidas = BANCO.filter(q => q.status === 'verified').map(q => q.id);
+  assert.deepEqual(esquecidas, [], 'aprovadas que ninguém promoveu para published');
 });

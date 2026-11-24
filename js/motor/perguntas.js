@@ -1,20 +1,30 @@
 /**
  * Confia? · banco de perguntas: validação e sorteio.
- * Status (Adendo ao PRD v1.1): needs_fact_check · needs_editorial_review · verified · published.
- * Mais 'aposentada', criado em 19/11/2026: decisão editorial de tirar a pergunta de partida para
- * sempre, sem apagar o registro dela do arquivo. Nunca entra em STATUS_JOGAVEIS.
- * Entram em partidas só os status de STATUS_JOGAVEIS, e sempre com fonte https.
  *
- * Havia aqui uma nota dizendo para deixar só "published" no lançamento. Ela ficou obsoleta e
- * era uma armadilha: em 23/11/2026 as 96 perguntas em partida são todas "verified" e nenhuma é
- * "published", então seguir a nota deixaria o jogo sem pergunta nenhuma. Hoje "verified" quer
- * dizer revisada e aprovada pela idealizadora, que é o que basta para jogar.
+ * Caminho de uma pergunta:
+ *   needs_fact_check        escrita, esperando conferência de fato ou de fonte
+ *   needs_editorial_review  conferida, esperando a decisão da idealizadora
+ *   verified                aprovada por ela, mas ainda não publicada
+ *   published               no ar, entrando em partidas
+ *   aposentada              fora de partida para sempre, por decisão editorial, sem apagar o
+ *                           registro do arquivo
+ *
+ * Só 'published' entra em partida, e sempre com fonte https.
+ *
+ * Até 24/11/2026 'verified' também jogava, e havia aqui uma nota mandando deixar só 'published'
+ * no lançamento. As 96 perguntas em partida eram todas 'verified': seguir a nota teria deixado o
+ * jogo sem pergunta nenhuma. As duas coisas foram resolvidas de uma vez, promovendo as 96 e
+ * fechando STATUS_JOGAVEIS em 'published'.
+ *
+ * Uma pergunta aprovada que ficar parada em 'verified' não joga. Para isso não acontecer em
+ * silêncio, o teste do banco cobra: toda pergunta fora de partida precisa dizer na auditoria por
+ * que está fora.
  */
 
 export const TIPOS = ['direta', 'desvio', 'falsa-pegadinha', 'conexao-improvavel'];
 export const DIFICULDADES = ['facil', 'media', 'dificil'];
 export const STATUS = ['needs_fact_check', 'needs_editorial_review', 'verified', 'published', 'aposentada'];
-export const STATUS_JOGAVEIS = ['published', 'verified'];
+export const STATUS_JOGAVEIS = ['published'];
 export const jogavel = q => STATUS_JOGAVEIS.includes(q.status);
 
 /**
